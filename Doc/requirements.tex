@@ -1,0 +1,148 @@
+% !TEX root = SystemTemplate.tex
+\chapter{User Stories, Backlog and Requirements}
+\section{Overview}
+
+
+This section will look at the userstories of the development of the program, the requirements
+of the program, the proof o fconcept results, and research task results. It will also look at the
+reason for developing this software. 
+
+ The userstories 
+Compile source code from tester.   Run compiled code from tester.   Compare two files from tester to see
+if they are different.   Traverse a directory looking for test cases.   Write program output to a file.   Write
+to human readable log file.   
+
+Below:   list, describe, and define the requirements in this chapter.  
+There could be any number of sub-sections to help provide the necessary level of 
+detail. 
+
+
+
+
+
+\subsection{Scope}
+
+
+This document will contain stakeholder information, 
+initial user stories, requirements, proof of concept results, and various research 
+task results. 
+
+
+
+\subsection{Purpose of the System}
+To test a basic computer program written in the C++ language so a grade can quickly be assigned.
+
+
+\section{ Stakeholder Information}
+
+
+The person most interested in this project is Dr. Logar (the end user) who is looking to quickly, 
+and easily, grade programs that are turned in by her CSC 150 students.   The people who want
+to see us fail the most is our compitition (which Dr. Logar as graciously pointed out are our classmates 
+on other teams). 
+
+
+\subsection{Customer or End User (Product Owner)}
+The product owner on the first sprint was Samuel Carroll, he created a list with his teammates 
+and on a day, selected by Dr. Logar, met with her and the other teams' product owner to determine
+exatly what Dr. Logar wanted. Samuel was also the team member most involved in keeping the Trello 
+board up to date.
+
+
+\subsection{Management or Instructor (Scrum Master)}
+The scrum master for the first sprint was Colter Assman, his duties were to ensure that the project 
+stayed on track and if any team member ran into some issues he would help them get back on track.   
+Colter also was responsible for the running of the daily scrum.
+
+
+\subsection{Investors}
+There were no investors for our first sprint.
+
+
+\subsection{Developers --Testers}
+Shaun Gruenig was the biggest tester for our program.   As the team technical lead 
+he kept us updated on if the project was running as we expected it to, and would 
+often debug the issues our code had.
+
+
+\section{Business Need}
+Currently many computer science teachers have to write each test case out by hand.   
+This is a very time consuming endeavor (especially considering how many students each
+one has), so this program would enable them to write a test cases which will then be input
+to our program.   Quickly and accurately giving grades to students.
+
+\section{Requirements and Design Constraints}
+The requirements was that our tester run in the Linux environment.   We also needed this 
+program to be ready to send out by the time the first CSC 150 program was due, therefore
+we only had about two weeks to write and implement this code.
+
+
+\subsection{System  Requirements}
+The program must be able to run on a Linux machine, using the GNU operating system.   
+therefore the code must able to compile using the GNU compiler.   This means all of our
+code must be executable on Linux machines.   Of course we may have had to write this
+program for another system, but the Linux environment is the nicest one for us to use.
+
+
+\subsection{Network Requirements}
+No network requirements were needed.
+
+
+\subsection{Development Environment Requirements}
+Linux/GNU system should be able to run our tester. 
+
+
+\subsection{Project  Management Methodology}
+The stakeholders had several requests on how the project was implemented. Including 
+what to use to keep track of backlogs and sprint status, which parties had access to the
+sprint and produt backlogs, how many sprints will be used for this project, and restrictions
+on the source control.
+ 
+\begin{itemize}
+\item Trello was used to keep track of the backlogs and sprint status
+\item All parties will have access to the Sprint and Product Backlogs
+\item Three sprints will encompass this project
+\item The sprints will vary in length a little bit but be about 2-3 weeks in general
+\item No specific source control is needed but we should familiarize ourselves with github
+\end{itemize}
+
+\section{User Stories}
+This section contains information about the user stories (what the program must be able 
+to do, and what the user should have to do).
+
+
+
+\subsection{Compile and Run Source Code}
+The program must be able to compile and run source code found in the directory
+
+\subsection{Write Pass/Fail and Percentages to Log File} 
+This program must be able to write output to a log file and to keep track of the total number
+passed cases and the total number of failed cases.
+
+\subsection{Compare Output with expected output}
+The program must be able to compare the output that we get after running a test case to the
+output that we expect to get from the test case. The expected output will be found when 
+searching the directory.
+
+\subsection{Searching/Traversing the Directory}
+The program must be able to search through all the files and sub-directories of the directory 
+that we are currently in.
+
+\subsection{Invoking the Program}
+The user must be able to run our program by typing `test <directory>'.
+
+
+\section{Research or Proof of Concept Results}
+Most of the code had been written by our team before.   We knew how to run the system 
+function in C++ to invoke a system command. We had built a directory crawler in an earlier 
+class (though in Windows so some modification had to take place).   All in all starting the 
+program we knew we could complete it.
+
+
+\section{Supporting Material}
+
+
+In the man pages for the diff function it shows us that it returns one of three values and 
+the case those values are returned, a zero if there is no difference between the two files, 
+a one if there is a difference between the two files, or a two if something went wrong (doesn't happen often)
+

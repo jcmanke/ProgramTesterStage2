@@ -1,0 +1,60 @@
+% !TEX encoding = UTF-8 Unicode
+% !TEX root = SystemTemplate.tex
+
+\documentclass{book}
+\input{seniordesignstyle.tex} % This sets the format.
+
+% Add your title page contents here 
+\title{{\color{MSBlue1} \rule{\linewidth}{0.5mm}}\\[2mm] {\huge \bfseries \color{MSBlue1} Program Tester Sprint 1 }\\[-1mm] {\color{MSBlue1}\rule{\linewidth}{0.5mm}} \\  \vfill
+{\LARGE \bfseries \color{MSBlue2} Software Engineering Spring 1 Documentation }\\  \vfill 
+{\color{MSBlue1} We Can't Follow Directions} }
+\author{\color{MSBlue1}  Colter Assman \and \color{MSBlue1} Samuel Carroll \and  \color{MSBlue1} Shaun Greunig }
+\date{\color{MSBlue1} \today}
+
+
+\begin{document}
+\frontmatter
+\maketitle
+
+
+\tableofcontents
+\listoffigures
+\listoftables
+\listofalgorithms
+
+
+\input{mission.tex}  % add mission statement to mission.tex
+\input{preparation.tex}
+
+ 
+\mainmatter
+
+%%  Add to the following chapters
+
+\input{overview.tex}
+\input{project.tex}
+\input{requirements.tex}
+\input{design.tex}
+\input{testing.tex}
+\input{develop.tex}
+\input{deploy.tex}
+\input{userdocs.tex}
+\input{refman.tex}
+
+
+\backmatter
+\chapter{Acknowledgement}
+\label{SpecialThanks}  Thanks to Dr. Logar, and Shaun's Grandfather whom we named the
+source code after  
+
+\input{supporting.tex}
+%%% Since counters are different in the backmatter section
+%%% we explicitly set the section number  (comment out to see effect)
+\setcounter{section}{0}
+\input{sprints.tex}
+\input{industrial.tex}
+
+
+
+
+\end{document}

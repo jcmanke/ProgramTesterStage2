@@ -1,0 +1,56 @@
+% !TEX root = SystemTemplate.tex
+\chapter{Design  and Implementation}
+This section will describe the design details for each of the major components 
+in the system. 
+ 
+
+\section{Parse Directory Function}
+
+\subsection{Technologies  Used}
+C++, Linux.
+
+\subsection{Component  Overview}
+This function will look for a C++ file, once it finds a C++ file it will compile it. 
+This function will then call the find test, and run difference functions to run a test
+and to see if there is a difference between the actual and expected outputs.
+
+\subsection{Phase Overview}
+This can traverse a directory, it can find and compile source code. It can look for, find, 
+and run test cases. It can check for differences, and write to a log file.
+
+
+
+\section{Find Test Function}
+
+\subsection{Technologies  Used}
+This will use C++ and system call function
+
+\subsection{Component  Overview}
+This function will travese a directory to find, and run test cases in our compiled 
+source code. It will also write if the test case passed or failed, and increment our 
+total count of passed and failed for the end of the log file.
+
+\subsection{Phase Overview}
+This function can traverse a directory looking for test case.  It can also run those 
+test cases when it finds them, and write the results to the log file.  It also increments
+the counter. 
+
+
+\section{Run Difference Function}
+
+\subsection{Technologies  Used}
+This uses the C++, and system call function, as well as the diff function in Linux/GNU
+
+\subsection{Component  Overview}
+This function will create a function that will run the diff function in Linux/GNU via the system call.
+First however it must create the string that will invoke the call, and take in the file names. Then it 
+will pass inform others if the test case passed or failed so they can handle the information accourdingly. 
+Also this doesn't print anything to the screen if there is a difference between the two files.
+
+\subsection{Phase Overview}
+This function can create the command string that will compare two files. This function will call the diff 
+function. This function will not output anything to the screen if there is a difference between the two files. 
+This function informs if there is, or is not, a difference between the two files.
+
+
+
