@@ -52,6 +52,10 @@ void parse_directory ( string root, int level, string target, ofstream &fout,
                        data_struct* test_stats );
 bool run_diff ( string file1, string file2 );
 
+void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
+        int numTotal);
+
+void StudentLogWrite( std::ofstream &fout, string testName, bool status );
 
 
 
@@ -376,8 +380,74 @@ string get_time ()
     return ( string ) string_version;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//FinalLogWrite
+//
+//@Author: Jonathan Tomes
+//
+//@Description:
+// This function will write the final log entry to a student file. or to the
+// class log file. It expects the stream to write to, the students name
+// and the number of tests their program passed, and the number o tests
+// actually used to test their code. If the number of tests passed is zero
+// it assumes a critical test was failed so instead of printing the percent
+// of passed tests it just prints "FAILED" next to their name.
+//
+// @param[in] fout - the stream to write to.
+// @param[in] name - the students name.
+// @param[in] numPassed - the number of tests passed, if zero assumes failed
+//      critical test.
+// @Param[in] numTotal - the total number of tests.
+///////////////////////////////////////////////////////////////////////////////
 
+void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
+        int numTotal )
+{
+    //calculate the percentage passed.
+    float perPassed;
+    perPassed = numPassed/numTotal;
+    
+    //check to see if they passed crit Tests
+    if( numPassed > 0)
+    {
+        //Prints student name and percentage passed.
+        fout << name << ": " << perPassed << "% passed" << std::endl;
+    }
+    else
+    {
+        //They failed!
+        fout << name << ": "<< "FAILED" << std::endl;
+    }
+    return;
+}
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//@Author: Jonathan Tomes
+//
+//@Description:
+//  Prints the status of a test to the file stream. Status should be weather
+// or not the a test passed (true) or failed (false).
+//
+//@param[in] fout - the stream to write to.
+//@param[in] testName - name of the test.
+//@param[in] status - true - test passed.
+//                    false - test failed.
+///////////////////////////////////////////////////////////////////////////////
 
-
+void StudentLogWrite( std::ofstream &fout, string testName, bool status )
+{
+    fout << testName << ": ";
+    if(status)
+    {
+        fout << "Passed" << std::endl;
+    }
+    else
+    {
+        fout << "Failed" << std::endl;
+    }
+    
+    return;
+}
 
