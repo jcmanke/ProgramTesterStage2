@@ -55,7 +55,7 @@ bool run_diff ( string file1, string file2 );
 void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
         int numTotal);
 
-void StudentLogWrite( std::ofstream &fout, string testName, bool status );
+void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
 
 
 
@@ -432,14 +432,14 @@ void FinalLogWrite( std::ofstream &fout, string name, int numPassed,
 //
 //@param[in] fout - the stream to write to.
 //@param[in] testName - name of the test.
-//@param[in] status - true - test passed.
-//                    false - test failed.
+//@param[in] passedStatus - true - test passed.
+//                          false - test failed.
 ///////////////////////////////////////////////////////////////////////////////
 
-void StudentLogWrite( std::ofstream &fout, string testName, bool status )
+void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
 {
     fout << testName << ": ";
-    if(status)
+    if(passedStatus)
     {
         fout << "Passed" << std::endl;
     }
