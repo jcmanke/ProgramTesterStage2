@@ -79,28 +79,30 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
  *      char* argv[] - array of c strings containing CL arguments
  *
  *  @Author: Shaun Gruenig
+ *  @Author: Erik Hattervig
  *
 ******************************************************************************/
 int main ( int argc, char* argv[] )
 {
-    ofstream fout; //file stream for .log file
-    string target; //used to hold the target cpp file specified by the user
-    data_struct test_stats; //used to hold results of tests (# passed, etc)
-    int percent; //used to hold percent passed & percent failed
+    ofstream fout;            // file stream for .log file
+    string masterDir;         // used to hold the directory by the user
+    data_struct test_stats;   // used to hold results of tests (# passed, etc)
+    int percent;              // used to hold percent passed & percent failed
 
-    //initialize values in test_stats struct
+    // initialize values in test_stats struct
     test_stats.passed = 0;
     test_stats.failed = 0;
     test_stats.total = 0;
 
-    target = argv[1]; //get users argument
+    // get users argument
+    masterDir = argv[1];
 
-    //locates target directory and calls functions necessary to run
-    //the applicable tests and gather the data for the log file
-    parse_directory ( get_current_dir_name() , 1, target, fout, &test_stats );
+    // locates target directory and calls functions necessary to run
+    // the applicable tests and gather the data for the log file
+    parse_directory ( get_current_dir_name() , 1, masterDir, fout, &test_stats );
 
 
-    //this block outputs all the collected statistics to the log file
+    // this block outputs all the collected statistics to the log file
     fout << endl;
     fout << "Total Passed: " << test_stats.passed << endl;
     fout << "Total Failed: " << test_stats.failed << endl;
