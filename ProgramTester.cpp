@@ -57,6 +57,9 @@ void FinalLogWrite( std::ofstream &fout, string name, int numPassed,
 
 void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
 
+bool compile( string progName);
+void studentDirCrawl( string rootDir );
+
 
 
 
@@ -458,3 +461,145 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
     return;
 }
 
+/*******************************************************************************
+ * @Function compile
+ * @Author: Jonathan Tomes
+ * 
+ * @Description:
+ * This function will compile the first cpp file it finds in a directory.
+ * It will compile to either the given program name (progName) or to the default
+ * a.out that g++ uses. It assumes that it is in the directory already and that
+ * there is only one cpp file to compile.
+ * 
+ * @Param[in] progName - string for the program name to compile to
+ *              if empty it will assume to use default g++ program name.
+ * @return bool true - compile successful
+ *              false - compile failed.
+*******************************************************************************/
+bool compile( string progName )
+{
+    char cCurrentPath[FILENAME_MAX];
+    DIR * dir;
+    struct dirent* file;
+    string filename;
+    bool foundFlag = false;
+    string cppFile;
+    string command;
+    
+    
+    getcwd( cCurrentPath, sizeof(cCurrentPath) );
+    //start looking for the cpp 
+    dir = opendir( cCurrentPath );
+    
+    while( ( file = readdir(dir) ) != NULL && !foundFlag )
+    {
+        //get file name
+        filename = file -> d_name;
+        //skip over "." and ".."
+        if( filename != "." && filename != ".." )
+        {
+            if( filename.find(".cpp") != string::npos )
+            {
+                cppFile = filename;
+                foundFlag = true;
+            }
+        }
+    }
+    
+    if(!foundFlag)
+    {
+        cout << "Could not find a cpp file in: " << cCurrentPath << endl;
+        return false;
+    }
+    
+    if( !progName.empty() )
+    {
+        command = "g++ -o " + progName + " " + cppFile;
+    }
+    else
+    {
+        command = "g++ " + cppFile;
+    }
+    
+    system( command.c_str() );
+    
+    return true;
+}
+
+/*******************************************************************************
+ * @Function studentDirCrawl
+ * @Author: Jonathan Tomes
+ * 
+ * @Description:
+ * This function will create a class log file in the current working directory
+ * and then search through the directory and find each student directory, 
+ * ignoring any directory with the word "test" in it. 
+ * It will then change into each student directory it finds. 
+ * There it will compile the source code and create a log file. Then it will
+ * call the testing function to test each student's program, passing it the
+ * student's name, path to program, and streams for the created log file.
+ * 
+*******************************************************************************/
+
+void studentDirCrawl( string rootDir )
+{
+    string classLogName;
+    ofstream classLog;
+    string studentLogName;
+    ofstream studentLog;
+    DIR * dir = opendir( rootDir.c_str() );
+    struct dirent* file;
+    string filename;
+    string studentDir;
+    string studentName;
+    time_t timer;
+    
+    //first create a class log file to store the final results for each
+    //student.
+    //start with getting a timer.
+    time( &timer );
+    classLogName = "Class_";
+    classLogName += ctime( &timer );
+    classLogName += ".log";
+    classLog.open( classLogName.c_str() );
+    
+    //start crawling through the directory.
+    while( ( file = readdir(dir ) ) != NULL )
+    {
+        //get the file name.
+        filename = file ->d_name;
+        //skip over "." and "..." and any with "test" in the name.
+        if( filename != "." && filename != ".." && 
+                (filename.find( "test") == string::npos ) )
+        {
+            if( (int) file->d_type == 4 )
+            {
+                //get the student name and directory.
+                studentName = filename;
+                studentDir = rootDir+ filename;
+                
+                //cout << studentDir << endl;
+                //change into the student directory.
+                chdir( filename.c_str() );
+                
+                //open the student log for creation.
+                studentLogName = studentName;
+                studentLogName += "_";
+                studentLogName += ctime( &timer );
+                studentLogName += ".log";
+                studentLog.open( studentLogName.c_str() );
+                
+				//compile the code
+                compile( "" );
+                //call test function some where around here
+                studentLog.close();
+				
+				//get back into the root directory.
+                chdir( rootDir.c_str() );
+                
+            }
+        }
+    }
+    
+    return;
+}
