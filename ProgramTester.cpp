@@ -433,7 +433,7 @@ void FinalLogWrite( std::ofstream &fout, string name, int numPassed,
 }
 
 /******************************************************************************
- *
+ * @Function: StudentLogWrite
  * @Author: Jonathan Tomes
  *
  * @Description:
@@ -498,6 +498,7 @@ bool compile( string progName )
         //skip over "." and ".."
         if( filename != "." && filename != ".." )
         {
+            //check if the file is a cpp file.
             if( filename.find(".cpp") != string::npos )
             {
                 cppFile = filename;
@@ -506,12 +507,14 @@ bool compile( string progName )
         }
     }
     
+    //check to see if a cpp file was found at all.
     if(!foundFlag)
     {
         cout << "Could not find a cpp file in: " << cCurrentPath << endl;
         return false;
     }
     
+    //check to see if a program name was specified.
     if( !progName.empty() )
     {
         command = "g++ -o " + progName + " " + cppFile;
@@ -521,6 +524,7 @@ bool compile( string progName )
         command = "g++ " + cppFile;
     }
     
+    //execute the command.
     system( command.c_str() );
     
     return true;
@@ -589,17 +593,16 @@ void studentDirCrawl( string rootDir )
                 studentLogName += ".log";
                 studentLog.open( studentLogName.c_str() );
                 
-				//compile the code
                 compile( "" );
                 //call test function some where around here
                 studentLog.close();
-				
-				//get back into the root directory.
                 chdir( rootDir.c_str() );
                 
             }
         }
     }
     
+    //close the class log.
+    classLog.close();
     return;
 }
