@@ -480,7 +480,7 @@ bool compile( string progName )
 {
     char cCurrentPath[FILENAME_MAX];
     DIR * dir;
-    struct dirent* file;
+    struct dirent* file;        //file entity struct from dirent.h
     string filename;
     bool foundFlag = false;
     string cppFile;
@@ -542,7 +542,6 @@ bool compile( string progName )
  * There it will compile the source code and create a log file. Then it will
  * call the testing function to test each student's program, passing it the
  * student's name, path to program, and streams for the created log file.
- * 
 *******************************************************************************/
 
 void studentDirCrawl( string rootDir )
@@ -552,15 +551,20 @@ void studentDirCrawl( string rootDir )
     string studentLogName;
     ofstream studentLog;
     DIR * dir = opendir( rootDir.c_str() );
-    struct dirent* file;
+    struct dirent* file;                //file entity struct from dirent.h
     string filename;
     string studentDir;
     string studentName;
-    time_t timer;
+    time_t timer;                       //a time object from time.h
+    
+    //a string to describe what to name the program
+    //and where to compile it too.
+    string progName = rootDir + "/a.out";
     
     //first create a class log file to store the final results for each
     //student.
-    //start with getting a timer.
+    //start with getting a timer to time stamp the file name.
+    
     time( &timer );
     classLogName = "Class_";
     classLogName += ctime( &timer );
@@ -576,24 +580,31 @@ void studentDirCrawl( string rootDir )
         if( filename != "." && filename != ".." && 
                 (filename.find( "test") == string::npos ) )
         {
+            //Check to see if it is a directory
+            //a d_type of 4 is what the value should be.
             if( (int) file->d_type == 4 )
             {
                 //get the student name and directory.
                 studentName = filename;
                 studentDir = rootDir+ filename;
                 
-                //cout << studentDir << endl;
+                
                 //change into the student directory.
                 chdir( filename.c_str() );
                 
                 //open the student log for creation.
+                //and time stamp the name so to differentiate it
+                //from other testing rounds.
                 studentLogName = studentName;
                 studentLogName += "_";
                 studentLogName += ctime( &timer );
                 studentLogName += ".log";
                 studentLog.open( studentLogName.c_str() );
                 
-                compile( "" );
+                //compile the program in this directory
+                //into the root directory.
+                compile( progName );
+                
                 //call test function some where around here
                 studentLog.close();
                 chdir( rootDir.c_str() );
