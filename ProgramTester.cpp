@@ -41,6 +41,7 @@ struct data_struct
     int passed;
     int failed;
     int total;
+	bool crit_failed;
 };
 
 
@@ -59,6 +60,8 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
 
 bool compile( string progName);
 void studentDirCrawl( string rootDir );
+bool RunTestCase(string exec, string test_case, string curr_dir, 
+	string student_dir, data_struct *rec, ofstream &log);
 
 
 
@@ -616,4 +619,82 @@ void studentDirCrawl( string rootDir )
     //close the class log.
     classLog.close();
     return;
+}
+
+/*******************************************************************************
+ * @Function RunTestCase
+ * @Author Andrew Koc (Note some code was taken from find_tst written by
+ *                       Colter Assman and Shaun Gruenig)
+ * 
+ * @Description:
+ * This function will take a given .tst file, generate the names for the 
+ * corresponding .out and .ans files and then run a specified executable with
+ * the .tst file as the input and the .out file for the output.  Note the .out
+ * file will be stored in the a different directory than the one the .tst file
+ * will be.
+ *
+ * @param[in] exec - the full path to the executable to be run
+ * @param[in] test_case - the name of the .tst file to be tested
+ * @param[in] curr_dir - the directory in which the .tst file is stored
+ * @param[in] student_dir - the directory of the student whose program is being tested
+ * @param[out] rec - the student record for the given executable
+ * @param[out] log - the log file for given executable
+ *
+ * @returns true - the executable passed the test case
+ * @returns false - the executable failed the test case
+ *
+*******************************************************************************/
+bool RunTestCase(string exec, string test_case, string curr_dir, 
+	string student_dir, data_struct *rec, ofstream &log)
+{
+	bool passed;
+	string outfilename, ansfilename, testname, command;
+	
+	//increment number of tests found/ran
+	rec->total++;
+
+    //discards file extension from .tst file
+    testname = test_case.substr ( 0, test_case.length() - 4 );
+
+    //creates name for .out file, including the full path
+    outfilename = student_dir + '/' + testname + ".out";
+
+    //creates name for .ans file, including the full path
+    ansfilename = curr_dir + "/" +
+                    testname + ".ans";
+
+    //creates command string to run the .tst file
+    command = exec + " < " + curr_dir
+                + "/" + test_case + " > " + outfilename
+                + " 2>/dev/null";
+
+    //run command to test program with current .tst file
+    system ( command.c_str() );
+
+	//determine if the program passed
+	passed = run_diff(outfilename, ansfilename);
+
+	StudentLogWrite(log, testname, passed);
+	
+	//The program passed the test
+	if( passed )
+	{
+		rec->passed++;
+	}
+	//The program did not pass the test
+	else
+	{
+		rec->failed++;
+		
+		//determine if this was a crit test it failed
+		//If the .find function finds it it will return the
+		//starting position of the string, so if it doesn't
+		//equal the npos, or null position, if was found
+		if( test_case.find("_crit") != string::npos )
+		{
+			rec->crit_failed = true;
+		}
+	}
+
+	return passed;
 }
