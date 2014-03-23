@@ -63,7 +63,7 @@ void studentDirCrawl( string rootDir );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
-  data_struct *rec, string StudentPath );
+  data_struct *rec, string studentPath );
 
 
 
@@ -723,7 +723,7 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
  *
  *****************************************************************************/
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
-  data_struct *rec, string StudentPath )
+  data_struct *rec, string studentPath )
 {
   DIR* dir = opendir( testPath.c_str() );  // Open the current level of the
                                            // traversal
@@ -746,17 +746,18 @@ void testCrawl( string testPath, string exePath, ofstream &studentLog,
       if ( (int) file->d_type == 4 )
       {
         // move into the sub-directory
-        testCrawl( restPath + filename + '/' + filename, exePath, studentLog,
-          rec );
+        testCrawl( testPath + filename + '/' + filename, exePath, studentLog,
+          rec , studentPath );
       }
       else
       {
         // check if the file has a .tst in it. String find returns string::nops
         //  if the substring cannot be found
-        if ( filename.find( ".tst" ) != string::nops )
+        if ( filename.find( ".tst" ) != string::npos )
         {
           // pass the file onto the grader
-          RunTestCase( exePath, filename, testPath, studentPath, rec, studentLog)
+          RunTestCase( exePath, filename, testPath, studentPath, rec,
+		    studentLog);
         }
       }
     } 
