@@ -46,6 +46,7 @@ struct data_struct
 
 
 ///////////function prototypes/////////////////////////////////////////////////
+void menuLoop( string rootDir );
 void find_tst ( string root, string curr_dir, string target, ofstream &fout,
                 data_struct* test_stats );
 string get_time();
@@ -124,7 +125,68 @@ int main ( int argc, char* argv[] )
     return 0;
 }
 
+/******************************************************************************
+ * @Function menuLoop
+ * @author Erik Hatterivg
+ *
+ * @Description:
+ * This function promps the user for a option, its options will include running
+ * the program as normally, generating test cases, or exiting.
+ *
+ * @param[in] rootDir - A string containing a path to the root directory
+ *
+ *****************************************************************************/
+void menuLoop( string rootDir )
+{
+    string input;
+    
+    // Loop till we return
+    while(1)
+    {
+        // print out the menu
+        cout << "Please select an option:\n  1: Run test cases\n";
+        cout << "  2: Generate test cases\n  3: Exit\nSelection: ";
+    
+        cin >> input;
 
+        if( input == "1" )
+        {
+            // run the program as normal
+            // <---
+        }
+        else if( input == "2" )
+        {
+            do
+            {
+                // Print menu for generating test cases too allow for
+                // the options of integers or floats
+                cout << "\nType of test data?\n  1: Integer\n  2: Float\n";
+                cout << "  3: Cancel\n";
+                cout << "Selection: ";
+                
+                cin >> input;
+                if( input == "1" )
+                {
+                    // call generate test cases for integers
+                    // <---
+                }
+                else if ( input == "2" )
+                {
+                    // call generate test cases for floats
+                    // <---
+                }
+            }while( input != "1" || input != "2" || input != "3" );
+        }
+        else if( input == "3" )
+        {
+            return;
+        }
+        else
+        {
+            cout << "That is not a valid option. Please enter again." << endl;
+        }
+    }
+}
 
 /******************************************************************************
  *
@@ -725,40 +787,40 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
   data_struct *rec, string studentPath )
 {
-  DIR* dir = opendir( testPath.c_str() );  // Open the current level of the
+    DIR* dir = opendir( testPath.c_str() );  // Open the current level of the
                                            // traversal
-  struct dirent* file;  // File entry structure from dirent.h
-  string filename;      // used in getting file names
+    struct dirent* file;  // File entry structure from dirent.h
+    string filename;      // used in getting file names
   
-  // Read each file
-  // Readdir returns next file in the directory and returns null if no other
-  //   files exist
-  while ( ( file = readdir(dir) ) != NULL )
-  {
-    // place file name into string filename for easier checking
-    filename = file->d_name;
-    
-    // skip over the directories "." and ".."
-    if ( filename != "." && filename != ".." )
+    // Read each file
+    // Readdir returns next file in the directory and returns null if no other
+    //   files exist
+    while ( ( file = readdir(dir) ) != NULL )
     {
-      // checks if the file is a subdirectory, 4 is the integer identity for
-      //   for the dirent struct on Lixux systems
-      if ( (int) file->d_type == 4 )
-      {
-        // move into the sub-directory
-        testCrawl( testPath + filename + '/' + filename, exePath, studentLog,
-          rec , studentPath );
-      }
-      else
-      {
-        // check if the file has a .tst in it. String find returns string::nops
-        //  if the substring cannot be found
-        if ( filename.find( ".tst" ) != string::npos )
+        // place file name into string filename for easier checking
+        filename = file->d_name;
+    
+        // skip over the directories "." and ".."
+        if ( filename != "." && filename != ".." )
         {
-          // pass the file onto the grader
-          RunTestCase( exePath, filename, testPath, studentPath, rec,
-		    studentLog);
-        }
+            // checks if the file is a subdirectory, 4 is the integer identity
+            //   for the dirent struct on Lixux systems
+            if ( (int) file->d_type == 4 )
+            {
+                // move into the sub-directory
+                testCrawl( testPath + filename + '/' + filename, exePath,
+                studentLog, rec , studentPath );
+            }
+        else
+        {
+            // check if the file has a .tst in it. String find returns 
+            //   string::nops if the substring cannot be found
+            if ( filename.find( ".tst" ) != string::npos )
+            {
+                // pass the file onto the grader
+                RunTestCase( exePath, filename, testPath, studentPath, rec,
+		        studentLog);
+            }
       }
     } 
   }
