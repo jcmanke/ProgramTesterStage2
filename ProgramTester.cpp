@@ -62,6 +62,8 @@ bool compile( string progName);
 void studentDirCrawl( string rootDir );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
+void testCrawl( string testPath, string exePath, ofstream &studentLog, 
+  data_struct *rec, string StudentPath );
 
 
 
@@ -697,4 +699,68 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
 	}
 
 	return passed;
+}
+
+
+/******************************************************************************
+ * @Fuction testCrawl
+ * @author Erik Hattervig
+ * 
+ * Description:
+ * A recursive function that traverses the Test directory that is provided.
+ * It calls will call the testing function when a .tst file is found in the
+ * directory, and pass on the rec struct for the over all student final pass
+ * and fails.
+ *
+ * @param[in] testPath - a string of the path to the directory that is being
+ *                       processed
+ * @param[in] exePath - a string of the path to the executable being tested
+ * @param[in] studentLog - A file stream to the log file that the test data
+ *                         will be written to
+ * @param[in] rec - a struct containing the total cases, passed cases, and
+ *                  a bool for crit test fail
+ * @param[in] studentPath - A path the the student directory
+ *
+ *****************************************************************************/
+void testCrawl( string testPath, string exePath, ofstream &studentLog, 
+  data_struct *rec, string StudentPath )
+{
+  DIR* dir = opendir( testPath.c_str() );  // Open the current level of the
+                                           // traversal
+  struct dirent* file;  // File entry structure from dirent.h
+  string filename;      // used in getting file names
+  
+  // Read each file
+  // Readdir returns next file in the directory and returns null if no other
+  //   files exist
+  while ( ( file = readdir(dir) ) != NULL )
+  {
+    // place file name into string filename for easier checking
+    filename = file->d_name;
+    
+    // skip over the directories "." and ".."
+    if ( filename != "." && filename != ".." )
+    {
+      // checks if the file is a subdirectory, 4 is the integer identity for
+      //   for the dirent struct on Lixux systems
+      if ( (int) file->d_type == 4 )
+      {
+        // move into the sub-directory
+        testCrawl( restPath + filename + '/' + filename, exePath, studentLog,
+          rec );
+      }
+      else
+      {
+        // check if the file has a .tst in it. String find returns string::nops
+        //  if the substring cannot be found
+        if ( filename.find( ".tst" ) != string::nops )
+        {
+          // pass the file onto the grader
+          RunTestCase( exePath, filename, testPath, studentPath, rec, studentLog)
+        }
+      }
+    } 
+  }
+  
+  return;
 }
