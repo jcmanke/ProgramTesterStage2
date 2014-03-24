@@ -212,7 +212,7 @@ void generateTestCases( string rootDir )
         string::npos );
     
     // change into the test folder
-    testDir = rootDir + "/Tests";
+    testDir = rootDir + "/test";
     chdir( testDir.c_str() );
     
     // delete the generated test in the test folder
@@ -242,12 +242,13 @@ void generateTestCases( string rootDir )
             {
                 // generate ints, maxed at 1000
                 fout << rand() % 1000;
+                fout << endl;
             }
             fout.close();
         }
         
     }
-    else if ( inputNumber == "2" )
+    else if ( inputType == "2" )
     {
         // generate test cases for floats
         
@@ -263,6 +264,7 @@ void generateTestCases( string rootDir )
                 // generate floats, maxed at 1000
                 fout << static_cast <float> (rand()) /
                 (static_cast <float> (RAND_MAX/1000));
+                fout << endl;
             }
             fout.close();
         }
@@ -290,8 +292,8 @@ void generateTestCases( string rootDir )
         
         // run through the executable
         chdir( rootDir.c_str() );
-        command = "./a.out < Tests/GeneratedTests/Test_" + (string)buffer;
-        command += ".tst > Tests/GeneratedTests/Test_" + (string)buffer;
+        command = "./a.out < test/GeneratedTests/Test_" + (string)buffer;
+        command += ".tst > test/GeneratedTests/Test_" + (string)buffer;
         command += ".ans";
         system( command.c_str() );
     }
