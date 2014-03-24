@@ -65,6 +65,7 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
 	string student_dir, data_struct *rec, ofstream &log);
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
   data_struct *rec, string studentPath );
+string get_time ();
 
 
 
@@ -91,39 +92,54 @@ void testCrawl( string testPath, string exePath, ofstream &studentLog,
  *  @Author: Erik Hattervig
  *
 ******************************************************************************/
-int main ( int argc, char* argv[] )
+
+
+int main( int argc, char* argv[] )
 {
-    ofstream fout;            // file stream for .log file
-    string masterDir;         // used to hold the directory by the user
-    data_struct test_stats;   // used to hold results of tests (# passed, etc)
-    int percent;              // used to hold percent passed & percent failed
-
-    // initialize values in test_stats struct
-    test_stats.passed = 0;
-    test_stats.failed = 0;
-    test_stats.total = 0;
-
-    // get users argument
-    masterDir = argv[1];
-
-    // locates target directory and calls functions necessary to run
-    // the applicable tests and gather the data for the log file
-    parse_directory ( get_current_dir_name() , 1, masterDir, fout, &test_stats );
+    char cCurrentPath[FILENAME_MAX];
+    string rootDir;
 
 
-    // this block outputs all the collected statistics to the log file
-    fout << endl;
-    fout << "Total Passed: " << test_stats.passed << endl;
-    fout << "Total Failed: " << test_stats.failed << endl;
-    percent = ( int ) ( ( ( double ) test_stats.passed ) / test_stats.total
-                        * 100 + 0.5 );
-    fout << "Percent Passed: " << percent << "%" << endl;
-    percent = ( int ) ( ( ( double ) test_stats.failed ) / test_stats.total
-                        * 100 + 0.5 );
-    fout << "Percent Failed: " << percent << "%" << endl;
-    fout.close();
-    return 0;
+    if ( argc < 2 )
+    {
+        getcwd( cCurrentPath, sizeof(cCurrentPath) );
+        rootDir = cCurrentPath;
+    }
+    else
+    {
+        rootDir = argv[1];
+    }
+    menuLoop(rootDir);
 }
+
+
+/******************************************************************************
+ *
+ *  get_time function
+ *
+ *  @Description:
+ *  This function uses the <time.h> library functions to construct
+ *  a string which contains the time and date
+ *
+ *  Parameters: none
+ *
+ *  @Author: Shaun Gruenig (referred to cplusplus.com for example code)
+ *
+******************************************************************************/
+string get_time ()
+{
+    char string_version[1000]; //stores date and time
+    time_t raw; //store time in time_t format
+    struct tm* formatted; //stores time in struct tm format
+
+    time ( &raw ); //gets time in seconds
+    formatted = localtime ( &raw ); //formats time as struct
+
+    //formats time into yyyy-mm-dd_hh:mm:dd
+    strftime ( string_version, 100, "%F_%X", formatted );
+    return ( string ) string_version;
+}
+
 
 /******************************************************************************
  * @Function menuLoop
@@ -141,7 +157,7 @@ void menuLoop( string rootDir )
     string input;
     
     // Loop till we return
-    while(1)
+    while(true)
     {
         // print out the menu
         cout << "Please select an option:\n  1: Run test cases\n";
@@ -152,7 +168,7 @@ void menuLoop( string rootDir )
         if( input == "1" )
         {
             // run the program as normal
-            // <---
+            studentDirCrawl(rootDir);
         }
         else if( input == "2" )
         {
@@ -186,205 +202,6 @@ void menuLoop( string rootDir )
             cout << "That is not a valid option. Please enter again." << endl;
         }
     }
-}
-
-/******************************************************************************
- *
- *  parse_directory function
- *
- *  @Description:
- *  This function searches through the directory and sub-directories that
- *  the program was run from until it finds a .cpp file that has
- *  a file name matching the one specified by the user. It then compiles
- *  the .cpp file, opens a related log file and calls the find_tst
- *  function to locate the tests associated with that target program
- *
- *  Parameters:
- *      string root - contains name of current root directory
- *      string target - contains the file name specified by the user
- *      ofstream &fout - file stream for writting to log file
- *      data_struct* test_stats - contains pointer to a structure
- *          which contains collected statistics from tests
- *
- *  @Authors: Colter Assman, Shaun Gruenig
- *
-******************************************************************************/
-void parse_directory ( string root, int level, string target, ofstream &fout,
-                       data_struct* test_stats )
-{
-    string temp, curr_dir, command, logfilename;
-    unsigned char test;
-    DIR *dir = opendir ( root.c_str() ); // open the current directory
-    struct dirent *entry;
-
-    if ( !dir ) // not a directory
-        return;
-
-    //this while loop continues to recursively parse a given directory
-    //while there are still unchecked files in it, until it locates
-    //the cpp file with the base name specified by the user
-    while ( entry = readdir ( dir ) ) // notice the single '='
-    {
-        temp = entry->d_name; //get the file/directory name of current file
-
-        if ( level == 2 ) //if it is the level of the cpp file
-            curr_dir = root; //save path of cpp file for later use
-
-
-        //this if statement checks to if the item in temp is a special system
-        //file and ignores it if it is
-        if (  temp != "." && temp != ".." && temp[temp.size() - 1] != '~'  )
-        {
-	    //store length of the current file's name
-            int length = temp.length();
-
-            //this if block checks if the current file ends with ".cpp"
-            if ( length > 4 && temp[length - 1] == 'p' 
-			    && temp[length - 2] == 'p' 
-			    && temp[length - 3] == 'c' 
-			    && temp[length - 4] == '.'
-                   	    && level != 1 )
-            {
-                //this if statement checks if the cpp file is the
-                //one specified by the user
-                if ( temp.substr ( 0, temp.length() - 4 ) == target )
-                {
-                    //creates command string to compile .cpp file
-                    command = "g++ -o " + curr_dir + "/" + target
-                              + " " + curr_dir + "/" + temp;
-                    system ( command.c_str() ); //compiles .cpp file
-
-                    //creates name of log file using name specified 
-		    //by user, date, and time
-                    logfilename = curr_dir + "/"  + target + "_" + get_time() 
-					   + ".log";
-                    fout.open ( logfilename.c_str() );
-
-		    //sends the ccp directory to find tst
-                    find_tst ( curr_dir, curr_dir, target, fout, test_stats ); 
-                }
-            }
-            //attempt to look in directory; recursive call will return 
-	    //immediately if the item in temp is not a directory
-            else
-            {
-                parse_directory ( root + '/' + temp, level + 1, target, 
-				  fout, test_stats );
-            }
-        }
-    }
-
-
-    closedir ( dir );
-
-}
-
-/******************************************************************************
- *
- *  find_tst function
- *
- *  @Description:
- *  This function searches through the directory and sub-directories that
- *  the program was run from until it finds a .cpp file that has
- *  a file name matching the one specified by the user. It then compiles
- *  the .cpp file, opens a related log file and calls the find_tst
- *  function to locate the tests associated with that target program
- *
- *  Parameters:
- *      string root - contains name of directory containing the
- *          the program we are testing
- *      string curr_dir - contains name of current directory
- *      string target - contains the file name specified by the user
- *      ofstream &fout - file stream for writting to log file
- *      data_struct* test_stats - contains pointer to a structure
- *          which contains collected statistics from tests
- *
- *  @Authors: Colter Assman, Shaun Gruenig
- *
-******************************************************************************/
-void find_tst ( string root, string curr_dir, string target, ofstream &fout, 
-		data_struct* test_stats )
-{
-    string temp, command, testname, outfilename, ansfilename;
-    unsigned char test;
-    DIR *dir = opendir ( curr_dir.c_str() ); // open the current directory
-    struct dirent *entry;
-
-    if ( !dir )
-        return;
-
-
-    while ( entry = readdir ( dir ) ) // notice the single '='
-    {
-        temp = entry->d_name;
-
-        //this if statement checks to if the item in temp is a special system
-        //file and ignores it if it is
-        if ( temp != "." && temp != ".." && temp[temp.size() - 1] != '~' )
-
-        {
-            int length = temp.length();
-
-            //this if statement checks if the current file ends in .tst
-            if ( length > 4 && temp[length - 1] == 't' 
-			    && temp[length - 2] == 's'       
-			    && temp[length - 3] == 't' 
-			    && temp[length - 4] == '.' )
-            {
-                test_stats->total++; //increment number of tests found/ran
-
-                //change to correct directory to run the program to be tested
-                chdir ( target.c_str() );
-
-                //discards file extension from .tst file
-                testname = temp.substr ( 0, length - 4 );
-
-                //creates name for .out file, including the full path
-                outfilename = curr_dir + "/" +
-                              testname + ".out";
-
-                //creates name for .ans file, including the full path
-                ansfilename = curr_dir + "/" +
-                              testname + ".ans";
-
-                //creates command string to run the .tst file
-                command = "./" + target + " < " + curr_dir
-                          + "/" + temp + " > " + outfilename
-                          + " 2>/dev/null";
-
-                //run command to test program with current .tst file
-                system ( command.c_str() );
-                fout << testname << ": ";
-
-                //check if output file matches the expected output and
-		//increment appropriate statistic
-                if ( run_diff ( outfilename, ansfilename ) )
-                {
-                    fout << "Passed" << endl;
-                    test_stats->passed++;
-                }
-                else
-                {
-                    fout << "Failed" << endl;
-                    test_stats->failed++;
-                }
-
-                //remove .out file
-                command = "rm " + outfilename;
-                system ( command.c_str() );
-            }
-            else
-            {
-                find_tst ( root, curr_dir + '/' + temp, target, fout, 
-				test_stats );
-            }
-        }
-    }
-
-
-
-    closedir ( dir );
-
 }
 
 
@@ -432,33 +249,6 @@ bool run_diff ( string file1, string file2 )
 
 /******************************************************************************
  *
- *  get_time function
- *
- *  @Description:
- *  This function uses the <time.h> library functions to construct
- *  a string which contains the time and date
- *
- *  Parameters: none
- *
- *  @Author: Shaun Gruenig (referred to cplusplus.com for example code)
- *
-******************************************************************************/
-string get_time ()
-{
-    char string_version[1000]; //stores date and time
-    time_t raw; //store time in time_t format
-    struct tm* formatted; //stores time in struct tm format
-
-    time ( &raw ); //gets time in seconds
-    formatted = localtime ( &raw ); //formats time as struct
-
-    //formats time into yyyy-mm-dd_hh:mm:dd
-    strftime ( string_version, 100, "%F_%X", formatted );
-    return ( string ) string_version;
-}
-
-/******************************************************************************
- *
  * FinalLogWrite
  *
  * @Author: Jonathan Tomes
@@ -478,24 +268,24 @@ string get_time ()
  *  @Param[in] numTotal - the total number of tests.
 ******************************************************************************/
 
-void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
-        int numTotal )
+void FinalLogWrite( std::ofstream &fout, string name, data_struct *rec )
 {
     //calculate the percentage passed.
     float perPassed;
-    perPassed = numPassed/numTotal;
+    perPassed = 100 * rec->passed/rec->total;
     
     //check to see if they passed crit Tests
-    if( numPassed > 0)
+    if(rec->crit_failed)
+    {
+            //They failed!
+            fout << name << ": "<< "FAILED" << std::endl;
+    }
+    else
     {
         //Prints student name and percentage passed.
         fout << name << ": " << perPassed << "% passed" << std::endl;
     }
-    else
-    {
-        //They failed!
-        fout << name << ": "<< "FAILED" << std::endl;
-    }
+
     return;
 }
 
@@ -623,6 +413,7 @@ void studentDirCrawl( string rootDir )
     string studentDir;
     string studentName;
     time_t timer;                       //a time object from time.h
+    data_struct rec;
     
     //a string to describe what to name the program
     //and where to compile it too.
@@ -634,7 +425,8 @@ void studentDirCrawl( string rootDir )
     
     time( &timer );
     classLogName = "Class_";
-    classLogName += ctime( &timer );
+    classLogName += get_time();
+    //classLogName += ctime( &timer );
     classLogName += ".log";
     classLog.open( classLogName.c_str() );
     
@@ -653,7 +445,7 @@ void studentDirCrawl( string rootDir )
             {
                 //get the student name and directory.
                 studentName = filename;
-                studentDir = rootDir+ filename;
+                studentDir = rootDir + '/' + filename;
                 
                 
                 //change into the student directory.
@@ -664,16 +456,30 @@ void studentDirCrawl( string rootDir )
                 //from other testing rounds.
                 studentLogName = studentName;
                 studentLogName += "_";
-                studentLogName += ctime( &timer );
+                studentLogName += get_time();
+                //studentLogName += ctime( &timer );
                 studentLogName += ".log";
                 studentLog.open( studentLogName.c_str() );
                 
                 //compile the program in this directory
                 //into the root directory.
                 compile( progName );
+
+                //Clear record
+                rec.failed = 0;
+                rec.crit_failed = false;
+                rec.passed = 0;
+                rec.total = 0;
                 
-                //call test function some where around here
+                //call test function to find and run tests
+                testCrawl( rootDir + '/' + "test", progName, studentLog,
+                  &rec, studentDir );
+
+                //Final log write and write to class log
+                FinalLogWrite(studentLog, studentName, &rec);
+                FinalLogWrite(classLog, studentName, &rec);
                 studentLog.close();
+
                 chdir( rootDir.c_str() );
                 
             }
@@ -808,7 +614,7 @@ void testCrawl( string testPath, string exePath, ofstream &studentLog,
             if ( (int) file->d_type == 4 )
             {
                 // move into the sub-directory
-                testCrawl( testPath + filename + '/' + filename, exePath,
+                testCrawl( testPath + '/' + filename, exePath,
                 studentLog, rec , studentPath );
             }
         else
