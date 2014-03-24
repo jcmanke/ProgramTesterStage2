@@ -2,10 +2,6 @@
 
 \chapter{User Documentation}
 
-First the user must install the software on their Linux system.   Then to run the system 
-the user must invoke our program on a directory with some C++ source code and test 
-cases for that program in it.   Finally the user must open up the most recent log file to see 
-the results of the program.
 
 %\newpage   %% 
 %%  The user guide can be an external document which is included here if necessary ...
@@ -13,19 +9,31 @@ the results of the program.
 
 \section{User Guide}
 
-No real user guide exists for this, just use it.  
+To use our program simply run it on the command line. You may specify a starting directory as a command
+line argument, or the program will assume to run in the directory it already is in. Next a menu will apear
+and ask for one of the options. 
+
+Run will let the program run normaly, it will search through the directory
+and find student directories containing the student source code. It will compile the code to the
+root directory. It will then search through the test directory in the root to find test casses to run on the
+student programs. It will log the result of each test to a student log file located in the student directory, and
+the final result will be repeated in an overal class log located in the starting directory. If the student
+fails a test labeled "crit\_(something).tst" the student will immediately fail and no more testing will be done.
+
+Generate will then prompt for a number of test cases, the number of inputs per test, and finally a data type
+to use for each test. It will then create a sub-directory called "Generated" in the test sub-directory of the root
+where the program was prompted to go or started in. If it had previously created tests, it will clear the directory
+and create a new one and all new test cases.
+
+Exit will exit the program.
 
 
 %% \newpage  %%  if needed ...
 \section{Installation Guide}
-Open Terminal
 
-Navigate to the source code
+1) Open the terminal and navigate to the directory containing our program source code and the makefile.
 
-Compile the source code
-
-run `test [directory to test]' where [directory to test] indicates the directory you want to run the 
-test on
+2) Run make.
 
 
 %% \newpage  %%  if needed ...

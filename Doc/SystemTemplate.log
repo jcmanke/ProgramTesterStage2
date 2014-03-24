@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.2.9)  23 MAR 2014 18:54
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.2.9)  23 MAR 2014 19:35
 entering extended mode
 **SystemTemplate.tex
 (C:\Users\1639926\Documents\GitHub\ProgramTesterStage2\Doc\SystemTemplate.tex
@@ -1236,20 +1236,20 @@ l.5 \section{Sprint Report \#1}
 [25] [26
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 60.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 59.
  [27]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 60.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 59.
 
 (C:\Users\1639926\Documents\GitHub\ProgramTesterStage2\Doc\SystemTemplate.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 60.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 60.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 59.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 59.
 Package rerunfilecheck Info: File `SystemTemplate.out' has not changed.
 (rerunfilecheck)             Checksum: 4D317872E86D2B2EB15CD6EC43223BFB;5712.
 
 
 LaTeX Warning: There were undefined references.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 60.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 59.
  ) 
 Here is how much of TeX's memory you used:
  13006 strings out of 493921
@@ -1270,7 +1270,7 @@ eX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MikTeX/fonts/type
 1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MikTeX/fonts/type1/public/amsf
 onts/cm/cmr17.pfb><C:/Program Files/MikTeX/fonts/type1/public/amsfonts/cm/cmti1
 0.pfb>
-Output written on SystemTemplate.pdf (41 pages, 222615 bytes).
+Output written on SystemTemplate.pdf (41 pages, 223729 bytes).
 PDF statistics:
  664 PDF objects out of 1000 (max. 8388607)
  130 named destinations out of 1000 (max. 500000)
