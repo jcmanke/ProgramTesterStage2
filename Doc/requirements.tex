@@ -30,16 +30,15 @@ task results.
 
 
 \subsection{Purpose of the System}
-To test a basic computer program written in the C++ language so a grade can quickly be assigned.
+To test a set of basic computer programs written in the C++ language so a grade can quickly be assigned to a class of students.
+The system will also be able to generate random test cases from user input.
 
 
 \section{ Stakeholder Information}
 
 
 The person most interested in this project is Dr. Logar (the end user) who is looking to quickly, 
-and easily, grade programs that are turned in by her CSC 150 students.   The people who want
-to see us fail the most is our compitition (which Dr. Logar as graciously pointed out are our classmates 
-on other teams). 
+and easily, grade programs that are turned in by her CSC 150 students.
 
 
 \subsection{Customer or End User (Product Owner)}
@@ -48,12 +47,19 @@ and on a day, selected by Dr. Logar, met with her and the other teams' product o
 exatly what Dr. Logar wanted. Samuel was also the team member most involved in keeping the Trello 
 board up to date.
 
+The product owner on the second sprint was Erik Hattervig, he gathered the nessary requirments of the
+second sprint from Dr Logar, relaied the information to his teammates, and set up the product backlog on
+the Trello board.
+
 
 \subsection{Management or Instructor (Scrum Master)}
 The scrum master for the first sprint was Colter Assman, his duties were to ensure that the project 
 stayed on track and if any team member ran into some issues he would help them get back on track.   
 Colter also was responsible for the running of the daily scrum.
 
+The scrum master for the second sprint was Jonathon Tomes,  he was in charge of managing the scheduling
+for the team members, creating spring schedules, and moving tasks from the product backlog to the sprint backlog.
+He also lead the scrum meetings.
 
 \subsection{Investors}
 There were no investors for our first sprint.
@@ -63,6 +69,9 @@ There were no investors for our first sprint.
 Shaun Gruenig was the biggest tester for our program.   As the team technical lead 
 he kept us updated on if the project was running as we expected it to, and would 
 often debug the issues our code had.
+
+For the second sprint, all three members of the team tested each other's code and gave feed back on bugs and
+code quality via Github.
 
 
 \section{Business Need}
@@ -75,6 +84,8 @@ to our program.   Quickly and accurately giving grades to students.
 The requirements was that our tester run in the Linux environment.   We also needed this 
 program to be ready to send out by the time the first CSC 150 program was due, therefore
 we only had about two weeks to write and implement this code.
+
+For sprint two we were limited to a set of features that were given to us by Dr. Logar.
 
 
 \subsection{System  Requirements}
@@ -103,7 +114,7 @@ on the source control.
 \item All parties will have access to the Sprint and Product Backlogs
 \item Three sprints will encompass this project
 \item The sprints will vary in length a little bit but be about 2-3 weeks in general
-\item No specific source control is needed but we should familiarize ourselves with github
+\item Github was used for source control on the second sprint
 \end{itemize}
 
 \section{User Stories}
@@ -115,9 +126,13 @@ to do, and what the user should have to do).
 \subsection{Compile and Run Source Code}
 The program must be able to compile and run source code found in the directory
 
+For sprint two we now must be able to compile and run test on an entire class directory.
+
 \subsection{Write Pass/Fail and Percentages to Log File} 
 This program must be able to write output to a log file and to keep track of the total number
 passed cases and the total number of failed cases.
+
+For sprint two we need to be able to keep track of both individual records as well as the whole class.
 
 \subsection{Compare Output with expected output}
 The program must be able to compare the output that we get after running a test case to the
@@ -127,6 +142,8 @@ searching the directory.
 \subsection{Searching/Traversing the Directory}
 The program must be able to search through all the files and sub-directories of the directory 
 that we are currently in.
+
+For sprint two this is used in the test directory.
 
 \subsection{Invoking the Program}
 The user must be able to run our program by typing `test <directory>'.
@@ -138,6 +155,8 @@ function in C++ to invoke a system command. We had built a directory crawler in 
 class (though in Windows so some modification had to take place).   All in all starting the 
 program we knew we could complete it.
 
+For sprint two much of the same concepts applied for the new features that were added such as
+test case generation.
 
 \section{Supporting Material}
 
