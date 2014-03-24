@@ -3,68 +3,6 @@
 This section will describe the design details for each of the major components 
 in the system. 
  
-
-\section{Parse Directory Function}
-
-\subsection{Technologies  Used}
-C++, Linux.
-
-\subsection{Component  Overview}
-This function will look for a C++ file, once it finds a C++ file it will compile it. 
-This function will then call the find test, and run difference functions to run a test
-and to see if there is a difference between the actual and expected outputs.
-
-\subsection{Phase Overview}
-This can traverse a directory, it can find and compile source code. It can look for, find, 
-and run test cases. It can check for differences, and write to a log file.
-
-
-
-\section{Find Test Function}
-
-\subsection{Technologies  Used}
-This will use C++ and system call function
-
-\subsection{Component  Overview}
-This function will travese a directory to find, and run test cases in our compiled 
-source code. It will also write if the test case passed or failed, and increment our 
-total count of passed and failed for the end of the log file.
-
-\subsection{Phase Overview}
-This function can traverse a directory looking for test case.  It can also run those 
-test cases when it finds them, and write the results to the log file.  It also increments
-the counter. 
-
-
-\section{Run Difference Function}
-
-\subsection{Technologies  Used}
-This uses the C++, and system call function, as well as the diff function in Linux/GNU
-
-\subsection{Component  Overview}
-This function will create a function that will run the diff function in Linux/GNU via the system call.
-First however it must create the string that will invoke the call, and take in the file names. Then it 
-will pass inform others if the test case passed or failed so they can handle the information accourdingly. 
-Also this doesn't print anything to the screen if there is a difference between the two files.
-
-\subsection{Phase Overview}
-This function can create the command string that will compare two files. This function will call the diff 
-function. This function will not output anything to the screen if there is a difference between the two files. 
-This function informs if there is, or is not, a difference between the two files.
-
-
-
-\section{Test Directory Crawl}
-
-\subsection{Technologies Used}
-This uses the C++ standard library namely the dirent.h library.
-
-\subsection{Component Overview}
-This function recusivly searches the test directory and upon finding a .tst file will run the function to test the
-executable against it.  When the function finds a subdirectory it calls itself on that subdirectory, allowing it to
-fully search for all of the test files.
-
-
 \section{Student Directory Crawl}
 
 \subsection {Technologies Used}
@@ -86,6 +24,47 @@ This uses the C++ standard library, system calls, and the g++ compiler.
 \subsection{Component Overview}
 This program recives a string which determines the name of the executable to be produced.  Then from the
 current directory finds and compiles the first .cpp file found.
+
+
+\section{Test Directory Crawl}
+
+\subsection{Technologies Used}
+This uses the C++ standard library namely the dirent.h library.
+
+\subsection{Component Overview}
+This function recusivly searches the test directory and upon finding a .tst file will run the function to test the
+executable against it.  When the function finds a subdirectory it calls itself on that subdirectory, allowing it to
+fully search for all of the test files.
+
+
+\section {Run Test Case}
+
+\subsection {Technologies Used}
+This uses the C++ standard library and system calls to execute the program.
+
+\subsection PComponent Overview}
+This function takes the name of the .tst file and generates the name of the .ans and .out files.  The .out file being created in
+the same directory as the one the .cpp file was found in, and the .ans in the same one as the .tst file was found in.
+After the names are generated, using the system command the executable is run with the .tst file used as input
+and the output being piped to the .out file.  Once it has completed the RunDiff function is called to determine
+if the program executed properly.  The log file and record are updated accordingly.
+
+
+\section{Run Difference Function}
+
+\subsection{Technologies  Used}
+This uses the C++, and system call function, as well as the diff function in Linux/GNU
+
+\subsection{Component  Overview}
+This function will create a function that will run the diff function in Linux/GNU via the system call.
+First however it must create the string that will invoke the call, and take in the file names. Then it 
+will pass inform others if the test case passed or failed so they can handle the information accourdingly. 
+Also this doesn't print anything to the screen if there is a difference between the two files.
+
+\subsection{Phase Overview}
+This function can create the command string that will compare two files. This function will call the diff 
+function. This function will not output anything to the screen if there is a difference between the two files. 
+This function informs if there is, or is not, a difference between the two files.
 
 
 \section {Student Log Write}
@@ -110,15 +89,4 @@ then only "FAILED" is written, rather than the percentage.  This function is use
 as well as each line in the class log file.
 
 
-\section {Run Test Case}
-
-\subsection {Technologies Used}
-This uses the C++ standard library and system calls to execute the program.
-
-\subsection PComponent Overview}
-This function takes the name of the .tst file and generates the name of the .ans and .out files.  The .out file being created in
-the same directory as the one the .cpp file was found in, and the .ans in the same one as the .tst file was found in.
-After the names are generated, using the system command the executable is run with the .tst file used as input
-and the output being piped to the .out file.  Once it has completed the RunDiff function is called to determine
-if the program executed properly.  The log file and record are updated accordingly.
 

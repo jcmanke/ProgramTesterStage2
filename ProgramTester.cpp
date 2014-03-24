@@ -47,18 +47,10 @@ struct data_struct
 
 ///////////function prototypes/////////////////////////////////////////////////
 void menuLoop( string rootDir );
-void find_tst ( string root, string curr_dir, string target, ofstream &fout,
-                data_struct* test_stats );
-string get_time();
-void parse_directory ( string root, int level, string target, ofstream &fout,
-                       data_struct* test_stats );
 bool run_diff ( string file1, string file2 );
-
 void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
         int numTotal);
-
 void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
-
 bool compile( string progName);
 void studentDirCrawl( string rootDir );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
