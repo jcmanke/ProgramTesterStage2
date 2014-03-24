@@ -54,3 +54,71 @@ This function informs if there is, or is not, a difference between the two files
 
 
 
+\section{Test Directory Crawl}
+
+\subsection{Technologies Used}
+This uses the C++ standard library namely the dirent.h library.
+
+\subsection{Component Overview}
+This function recusivly searches the test directory and upon finding a .tst file will run the function to test the
+executable against it.  When the function finds a subdirectory it calls itself on that subdirectory, allowing it to
+fully search for all of the test files.
+
+
+\section{Student Directory Crawl}
+
+\subsection {Technologies Used}
+This uses the C++ standard library namely the dirent.h library.
+
+\subsection{Component Overview}
+This function creates a log file for the entire class in the root.  Then it searches for subdirectories other than the
+Test directory, which contains only the .tst and .ans files.  When it finds an applicable subdirectory it changes in,
+creates a log file for that student, and compiles the .cpp file found within.  Then it runs the test directory crawl
+on the compiled program.  After it has returned from the test crawl it does the final log write for the student and
+writes to the class log as well.
+
+
+\section (Compile a Program}
+
+\subsection {Technologies Used}
+This uses the C++ standard library, system calls, and the g++ compiler.
+
+\subsection{Component Overview}
+This program recives a string which determines the name of the executable to be produced.  Then from the
+current directory finds and compiles the first .cpp file found.
+
+
+\section {Student Log Write}
+
+\subsection {Technologies Used}
+This uses the C++ standard library, namely the fstream library.
+
+\subsection {Component Overview}
+This function takes an ofstream, the name of the test, and the success or failure of that test, and writes the
+formated results to the ofstream.
+
+
+\section {Final Log Write}
+
+\subsection {Technologies Used}
+This uses the C++ standard library, namely the fstream library.
+
+\subsection {Component Overview}
+This function takes an ofstream, the name of the student, and a record of the pass and failure of all of the test cases.  
+This function writes the percent of the tests passed, assuming that no critical tests were failed.  If a critical test was failed
+then only "FAILED" is written, rather than the percentage.  This function is used to write the last line of each student log file,
+as well as each line in the class log file.
+
+
+\section {Run Test Case}
+
+\subsection {Technologies Used}
+This uses the C++ standard library and system calls to execute the program.
+
+\subsection PComponent Overview}
+This function takes the name of the .tst file and generates the name of the .ans and .out files.  The .out file being created in
+the same directory as the one the .cpp file was found in, and the .ans in the same one as the .tst file was found in.
+After the names are generated, using the system command the executable is run with the .tst file used as input
+and the output being piped to the .out file.  Once it has completed the RunDiff function is called to determine
+if the program executed properly.  The log file and record are updated accordingly.
+

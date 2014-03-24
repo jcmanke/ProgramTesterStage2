@@ -5,18 +5,45 @@ our source code.
 
 
 \section{Development IDE and Tools}
-The code was written in gedit and VIM, and requires no special IDE's or tools.
+The code was written in simple text editors, and requires no special IDE's or tools.  All
+the code was tested on a Linux machine using the g++ compiler.  The debug tool
+gdb was used to debug the code when necessary.
 
 \section{Source  Control}
-No source control system was used by our team for this sprint. We passed the code 
-around through email, in future sprints we will need to start using a source control system.
+We used github for source control.  The repository can be found at this url: 
+
+https://github.com/TheSoftwareEngineeringAdventureLine/ProgramTesterStage2.git
 
 \section{Dependencies}
-The dependencies to building the system is our source code. 
+This program is dependent on the C++ Standard Library as well as the g++ compiler
+on a Linux system.
 
 \section{Build  Environment}
-The packages are all built with the GNU compiler. There are no build scripts provided. 
+The execuatble is built by the g++ compiler.  You can either compile it manually, using the command:
+\begin{lstlisting}
+g++ -o tester ProgramTester.cpp
+\end{lstlisting}
+Or by using the following make file:
+
+\begin{lstlisting}
+# compiler
+CC = g++
+
+# compiler options
+CFLAGS = -c -Wall
+
+all: tester
+
+tester: tester.o
+	$(CC) -lm tester.o -o ProgramTester
+
+tester.o: ProgramTester.cpp
+	$(CC) $(CFLAGS) ProgramTester.cpp
+
+clean:
+	rm -rf *o tester
+\end{lstlisting}
 
 \section{Development Machine Setup}
-No special setup should be required to run our code.
+For the Development Machine set up any Linux machine with the GNU compiler should work.
 
