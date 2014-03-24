@@ -2,7 +2,7 @@
 
 \chapter{Overview and concept of operations}
 
-This document will look at the We Don't Follow Directions team first sprint for building
+This document will look at the Software Engineering Adventure Line team second sprint for building
 a program tester. Looking at the team members and their roles, the project
 management that we used, the sprint retrospective, any terminology or acronyms
 that we use. Next we will look at the user stories, backlog and requirements of the
@@ -15,48 +15,48 @@ class index and class documnetation.
 
 
 \section{Scope}
-This document will cover the first sprint of our program tester built for Dr. Logar's
+This document will cover the second sprint of our program tester built for Dr. Logar's
 software engineering class in Spring 2014 .
 
 
 \section{Purpose}
-To document the first sprint of the Software Engineering Program tester.
+The purpose of this program is to compile, run and test the simple programs created by others. 
 
+The program willl also offer to generate additonal random tests.
 
-\subsection{Parse Directory Function}
-Find the directory that we are looking for so we can traverse through it looking
-for code to compile and run.
+\subsection{Normal Run}
+The programs it tests are supposed to be guarenteed to compile and run correctly. It will then search through a root directory, find each studen'ts
+subdirectory, compile their code into the root directory, open log files for the studen and the class as a whole. Student logs will
+go into the student's directory and the class log will be in the root. The student logs will have the results of each test and a final
+score. The final score will be based on the precent of the tests passed. Unless the program fails a critcal test. If a student fails a 
+test labeled as "crit\_(something).tst", that student will be immediately marked as "FAILED".
 
-\subsection{Find Test Function}
-Goes through the directory looking for source code to run, in order to compile
-and test it.
+\subsection{ Generate Tests}
+The program will ask for a number tests to generate, the number of inputs for
+each test, and the data type for the tests. The program will then generate a "GeneratedTests" directory in the test directory of the root
+folder. At which point, the program will generate the number of tests specified. If the program has previously generated tests, it will
+then remove the past generated tests and create new ones. 
 
-\subsection{Run Difference Function}
-This function will take in the output of the program we're testing and comparing it
-with the expected output.
 
 \section{Systems Goals}
-The goal of this program is to run a program passed by command line, and test it
-against found test cases. It will output if that test case passed or failed as well as
-the totall cases passed, and total cases failed.
+1) Find student programs to compile.
+
+2) Find the tests and use them to test the found programs.
+
+3) Generate new random test cases.
 
 \section{System Overview and Diagram}
-The program will be passed a source code file and compile and run that code.   To get test cases our
-code will traverse a directory looking for .tst files.   It will use the test cases in the compiled code,
-and output to a file.   That output file will be compared to the expected output file, if it passes we
-write that test case to the log file and the passed or failed flag.   If we have used all the test cases
-our program finishes by writing how many files passed, how many files failed, the percentages of
-files that passed, and the percentage that failed, and close the program.   See Figure~\ref{systemdiagram}.
+The program will be started on the command line. You may specify a starting directory or not, if not the program will assume that it is running in the
+directory it is supposed to be searching in. It will then display a simple menu of Run, which tells the program to run normaly,
+searching for student programs and testing them. Or Generate, which will tell the program to generate tests. It will ask
+the user for the number of test cases, number of inputs, and the data type to use.   See Figure~\ref{systemdiagram}.
 
 \begin{figure}[tbh]
 \begin{center}
-\includegraphics[width=0.75\textwidth]{./diagram}
+\includegraphics[width=0.75\textwidth]{./SystemDiagram}
 \end{center}
 \caption{System Diagram \label{systemdiagram}}
 \end{figure}
 
 \section{Technologies Overview}
-We used C++ to write our code, in a Linux/GNU environment. We also used the system command to compile
-and run the program we are testing, including the g++ compiler, and the diff function. We also used the iostream,
-string, fstream, ctime, stdlib.h, dirent.h, and unistd.h libraries over the course of the program.
-
+The main programing langue used was C++, and was compiled with g++ on a linux environment.
