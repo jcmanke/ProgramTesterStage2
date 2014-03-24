@@ -3,9 +3,10 @@
  *  Simple Program Tester
  *
  *  Authors: Colter Assman, Samuel Carroll, Shaun Gruenig
+ *  Adventure Line Authors: Erik Hattervig, Andrew Koc, Jonathan Tomes
  * CS470 - Software Engineering
  * Dr. Logar
- * February 19
+ * March 24, 2014
  *
  * Program Description:
  *     This program is to be placed into a directory containing
@@ -13,8 +14,8 @@
  *     contain test input for the program contained in the cpp file,
  *     and .ans files that contain the expected output associated with
  *     said input. This program will then find the specified cpp file,
- *   compile and run the program against all given test cases, and
- *    output a log file in the same directory as the .cpp file.
+ *     compile and run the program against all given test cases, and
+ *     output a log file in the same directory as the .cpp file.
  *
  *     A more in-depth description of this program can be found in
  *     the accompanying documentation.
@@ -47,23 +48,19 @@ struct data_struct
 
 
 ///////////function prototypes/////////////////////////////////////////////////
-void generateTestCases( string rootDir );
-void menuLoop( string rootDir );
-bool run_diff ( string file1, string file2 );
+bool compile( string progName );
 void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
         int numTotal);
-void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
-bool compile( string progName );
-bool compile( string progName);
-void studentDirCrawl( string rootDir );
+void generateTestCases( string rootDir );
+string get_time ();
+void menuLoop( string rootDir );
+bool run_diff ( string file1, string file2 );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
+void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
+void studentDirCrawl( string rootDir );
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
   data_struct *rec, string studentPath );
-string get_time ();
-
-
-
 
 /******************************************************************************
  *
@@ -87,8 +84,6 @@ string get_time ();
  *  @Author: Erik Hattervig
  *
 ******************************************************************************/
-
-
 int main( int argc, char* argv[] )
 {
     char cCurrentPath[FILENAME_MAX];
@@ -107,34 +102,116 @@ int main( int argc, char* argv[] )
     menuLoop(rootDir);
 }
 
+/*******************************************************************************
+ * @Function compile
+ * @Author: Jonathan Tomes
+ * 
+ * @Description:
+ * This function will compile the first cpp file it finds in a directory.
+ * It will compile to either the given program name (progName) or to the default
+ * a.out that g++ uses. It assumes that it is in the directory already and that
+ * there is only one cpp file to compile.
+ * 
+ * @Param[in] progName - string for the program name to compile to
+ *              if empty it will assume to use default g++ program name.
+ * @return bool true - compile successful
+ *              false - compile failed.
+*******************************************************************************/
+bool compile( string progName )
+{
+    char cCurrentPath[FILENAME_MAX];
+    DIR * dir;
+    struct dirent* file;        //file entity struct from dirent.h
+    string filename;
+    bool foundFlag = false;
+    string cppFile;
+    string command;
+    
+    
+    getcwd( cCurrentPath, sizeof(cCurrentPath) );
+    //start looking for the cpp 
+    dir = opendir( cCurrentPath );
+    
+    while( ( file = readdir(dir) ) != NULL && !foundFlag )
+    {
+        //get file name
+        filename = file -> d_name;
+        //skip over "." and ".."
+        if( filename != "." && filename != ".." )
+        {
+            //check if the file is a cpp file.
+            if( filename.find(".cpp") != string::npos )
+            {
+                cppFile = filename;
+                foundFlag = true;
+            }
+        }
+    }
+    
+    //check to see if a cpp file was found at all.
+    if(!foundFlag)
+    {
+        cout << "Could not find a cpp file in: " << cCurrentPath << endl;
+        return false;
+    }
+    
+    //check to see if a program name was specified.
+    if( !progName.empty() )
+    {
+        command = "g++ -o " + progName + " " + cppFile;
+    }
+    else
+    {
+        command = "g++ " + cppFile;
+    }
+    
+    //execute the command.
+    system( command.c_str() );
+    
+    return true;
+}
 
 /******************************************************************************
  *
- *  get_time function
+ * FinalLogWrite
  *
- *  @Description:
- *  This function uses the <time.h> library functions to construct
- *  a string which contains the time and date
+ * @Author: Jonathan Tomes
  *
- *  Parameters: none
+ * @Description:
+ *  This function will write the final log entry to a student file. or to the
+ *  class log file. It expects the stream to write to, the students name
+ *  and the number of tests their program passed, and the number o tests
+ *  actually used to test their code. If the number of tests passed is zero
+ *  it assumes a critical test was failed so instead of printing the percent
+ *  of passed tests it just prints "FAILED" next to their name.
  *
- *  @Author: Shaun Gruenig (referred to cplusplus.com for example code)
- *
+ *  @param[in] fout - the stream to write to.
+ *  @param[in] name - the students name.
+ *  @param[in] numPassed - the number of tests passed, if zero assumes failed
+ *      critical test.
+ *  @Param[in] numTotal - the total number of tests.
 ******************************************************************************/
-string get_time ()
+
+void FinalLogWrite( std::ofstream &fout, string name, data_struct *rec )
 {
-    char string_version[1000]; //stores date and time
-    time_t raw; //store time in time_t format
-    struct tm* formatted; //stores time in struct tm format
+    //calculate the percentage passed.
+    float perPassed;
+    perPassed = 100 * rec->passed/rec->total;
+    
+    //check to see if they passed crit Tests
+    if(rec->crit_failed)
+    {
+            //They failed!
+            fout << name << ": "<< "FAILED" << std::endl;
+    }
+    else
+    {
+        //Prints student name and percentage passed.
+        fout << name << ": " << perPassed << "% passed" << std::endl;
+    }
 
-    time ( &raw ); //gets time in seconds
-    formatted = localtime ( &raw ); //formats time as struct
-
-    //formats time into yyyy-mm-dd_hh:mm:dd
-    strftime ( string_version, 100, "%F_%X", formatted );
-    return ( string ) string_version;
+    return;
 }
-
 
 /******************************************************************************
  * @Function generateTestCases
@@ -302,6 +379,33 @@ void generateTestCases( string rootDir )
 }
 
 /******************************************************************************
+ *
+ *  get_time function
+ *
+ *  @Description:
+ *  This function uses the <time.h> library functions to construct
+ *  a string which contains the time and date
+ *
+ *  Parameters: none
+ *
+ *  @Author: Shaun Gruenig (referred to cplusplus.com for example code)
+ *
+******************************************************************************/
+string get_time ()
+{
+    char string_version[1000]; //stores date and time
+    time_t raw; //store time in time_t format
+    struct tm* formatted; //stores time in struct tm format
+
+    time ( &raw ); //gets time in seconds
+    formatted = localtime ( &raw ); //formats time as struct
+
+    //formats time into yyyy-mm-dd_hh:mm:dd
+    strftime ( string_version, 100, "%F_%X", formatted );
+    return ( string ) string_version;
+}
+
+/******************************************************************************
  * @Function menuLoop
  * @author Erik Hatterivg
  *
@@ -345,7 +449,6 @@ void menuLoop( string rootDir )
     }
 }
 
-
 /******************************************************************************
  *
  *  run_diff function
@@ -387,49 +490,6 @@ bool run_diff ( string file1, string file2 )
         return false; // return false if the test failed
 } // end of run_diff function
 
-
-/******************************************************************************
- *
- * FinalLogWrite
- *
- * @Author: Jonathan Tomes
- *
- * @Description:
- *  This function will write the final log entry to a student file. or to the
- *  class log file. It expects the stream to write to, the students name
- *  and the number of tests their program passed, and the number o tests
- *  actually used to test their code. If the number of tests passed is zero
- *  it assumes a critical test was failed so instead of printing the percent
- *  of passed tests it just prints "FAILED" next to their name.
- *
- *  @param[in] fout - the stream to write to.
- *  @param[in] name - the students name.
- *  @param[in] numPassed - the number of tests passed, if zero assumes failed
- *      critical test.
- *  @Param[in] numTotal - the total number of tests.
-******************************************************************************/
-
-void FinalLogWrite( std::ofstream &fout, string name, data_struct *rec )
-{
-    //calculate the percentage passed.
-    float perPassed;
-    perPassed = 100 * rec->passed/rec->total;
-    
-    //check to see if they passed crit Tests
-    if(rec->crit_failed)
-    {
-            //They failed!
-            fout << name << ": "<< "FAILED" << std::endl;
-    }
-    else
-    {
-        //Prints student name and percentage passed.
-        fout << name << ": " << perPassed << "% passed" << std::endl;
-    }
-
-    return;
-}
-
 /******************************************************************************
  * @Function: StudentLogWrite
  * @Author: Jonathan Tomes
@@ -460,72 +520,81 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
 }
 
 /*******************************************************************************
- * @Function compile
- * @Author: Jonathan Tomes
+ * @Function RunTestCase
+ * @Author Andrew Koc (Note some code was taken from find_tst written by
+ *                       Colter Assman and Shaun Gruenig)
  * 
  * @Description:
- * This function will compile the first cpp file it finds in a directory.
- * It will compile to either the given program name (progName) or to the default
- * a.out that g++ uses. It assumes that it is in the directory already and that
- * there is only one cpp file to compile.
- * 
- * @Param[in] progName - string for the program name to compile to
- *              if empty it will assume to use default g++ program name.
- * @return bool true - compile successful
- *              false - compile failed.
+ * This function will take a given .tst file, generate the names for the 
+ * corresponding .out and .ans files and then run a specified executable with
+ * the .tst file as the input and the .out file for the output.  Note the .out
+ * file will be stored in the a different directory than the one the .tst file
+ * will be.
+ *
+ * @param[in] exec - the full path to the executable to be run
+ * @param[in] test_case - the name of the .tst file to be tested
+ * @param[in] curr_dir - the directory in which the .tst file is stored
+ * @param[in] student_dir - the directory of the student whose program is being tested
+ * @param[out] rec - the student record for the given executable
+ * @param[out] log - the log file for given executable
+ *
+ * @returns true - the executable passed the test case
+ * @returns false - the executable failed the test case
+ *
 *******************************************************************************/
-bool compile( string progName )
+bool RunTestCase(string exec, string test_case, string curr_dir, 
+	string student_dir, data_struct *rec, ofstream &log)
 {
-    char cCurrentPath[FILENAME_MAX];
-    DIR * dir;
-    struct dirent* file;        //file entity struct from dirent.h
-    string filename;
-    bool foundFlag = false;
-    string cppFile;
-    string command;
-    
-    
-    getcwd( cCurrentPath, sizeof(cCurrentPath) );
-    //start looking for the cpp 
-    dir = opendir( cCurrentPath );
-    
-    while( ( file = readdir(dir) ) != NULL && !foundFlag )
-    {
-        //get file name
-        filename = file -> d_name;
-        //skip over "." and ".."
-        if( filename != "." && filename != ".." )
-        {
-            //check if the file is a cpp file.
-            if( filename.find(".cpp") != string::npos )
-            {
-                cppFile = filename;
-                foundFlag = true;
-            }
-        }
-    }
-    
-    //check to see if a cpp file was found at all.
-    if(!foundFlag)
-    {
-        cout << "Could not find a cpp file in: " << cCurrentPath << endl;
-        return false;
-    }
-    
-    //check to see if a program name was specified.
-    if( !progName.empty() )
-    {
-        command = "g++ -o " + progName + " " + cppFile;
-    }
-    else
-    {
-        command = "g++ " + cppFile;
-    }
-    
-    //execute the command.
-    system( command.c_str() );
-    
-    return true;
+	bool passed;
+	string outfilename, ansfilename, testname, command;
+	
+	//increment number of tests found/ran
+	rec->total++;
+
+    //discards file extension from .tst file
+    testname = test_case.substr ( 0, test_case.length() - 4 );
+
+    //creates name for .out file, including the full path
+    outfilename = student_dir + '/' + testname + ".out";
+
+    //creates name for .ans file, including the full path
+    ansfilename = curr_dir + "/" +
+                    testname + ".ans";
+
+    //creates command string to run the .tst file
+    command = exec + " < " + curr_dir
+                + "/" + test_case + " > " + outfilename
+                + " 2>/dev/null";
+
+    //run command to test program with current .tst file
+    system ( command.c_str() );
+
+	//determine if the program passed
+	passed = run_diff(outfilename, ansfilename);
+
+	StudentLogWrite(log, testname, passed);
+	
+	//The program passed the test
+	if( passed )
+	{
+		rec->passed++;
+	}
+	//The program did not pass the test
+	else
+	{
+		rec->failed++;
+		
+		//determine if this was a crit test it failed
+		//If the .find function finds it it will return the
+		//starting position of the string, so if it doesn't
+		//equal the npos, or null position, if was found
+		if( test_case.find("_crit") != string::npos )
+		{
+			rec->crit_failed = true;
+		}
+	}
+
+	return passed;
 }
 
 /*******************************************************************************
@@ -631,85 +700,6 @@ void studentDirCrawl( string rootDir )
     classLog.close();
     return;
 }
-
-/*******************************************************************************
- * @Function RunTestCase
- * @Author Andrew Koc (Note some code was taken from find_tst written by
- *                       Colter Assman and Shaun Gruenig)
- * 
- * @Description:
- * This function will take a given .tst file, generate the names for the 
- * corresponding .out and .ans files and then run a specified executable with
- * the .tst file as the input and the .out file for the output.  Note the .out
- * file will be stored in the a different directory than the one the .tst file
- * will be.
- *
- * @param[in] exec - the full path to the executable to be run
- * @param[in] test_case - the name of the .tst file to be tested
- * @param[in] curr_dir - the directory in which the .tst file is stored
- * @param[in] student_dir - the directory of the student whose program is being tested
- * @param[out] rec - the student record for the given executable
- * @param[out] log - the log file for given executable
- *
- * @returns true - the executable passed the test case
- * @returns false - the executable failed the test case
- *
-*******************************************************************************/
-bool RunTestCase(string exec, string test_case, string curr_dir, 
-	string student_dir, data_struct *rec, ofstream &log)
-{
-	bool passed;
-	string outfilename, ansfilename, testname, command;
-	
-	//increment number of tests found/ran
-	rec->total++;
-
-    //discards file extension from .tst file
-    testname = test_case.substr ( 0, test_case.length() - 4 );
-
-    //creates name for .out file, including the full path
-    outfilename = student_dir + '/' + testname + ".out";
-
-    //creates name for .ans file, including the full path
-    ansfilename = curr_dir + "/" +
-                    testname + ".ans";
-
-    //creates command string to run the .tst file
-    command = exec + " < " + curr_dir
-                + "/" + test_case + " > " + outfilename
-                + " 2>/dev/null";
-
-    //run command to test program with current .tst file
-    system ( command.c_str() );
-
-	//determine if the program passed
-	passed = run_diff(outfilename, ansfilename);
-
-	StudentLogWrite(log, testname, passed);
-	
-	//The program passed the test
-	if( passed )
-	{
-		rec->passed++;
-	}
-	//The program did not pass the test
-	else
-	{
-		rec->failed++;
-		
-		//determine if this was a crit test it failed
-		//If the .find function finds it it will return the
-		//starting position of the string, so if it doesn't
-		//equal the npos, or null position, if was found
-		if( test_case.find("_crit") != string::npos )
-		{
-			rec->crit_failed = true;
-		}
-	}
-
-	return passed;
-}
-
 
 /******************************************************************************
  * @Fuction testCrawl
