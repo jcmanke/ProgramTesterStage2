@@ -53,12 +53,8 @@ bool run_diff ( string file1, string file2 );
 void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
         int numTotal);
 void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
-<<<<<<< HEAD
-
 bool compile( string progName );
-=======
 bool compile( string progName);
->>>>>>> edfbe0bb292fe1eb15b6b23ecd2c78ec0f487635
 void studentDirCrawl( string rootDir );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
@@ -178,7 +174,7 @@ void generateTestCases( string rootDir )
             cout << "Please enter a valid option" << endl;
         }
     
-    }while( input != "1" || input != "2" );
+    }while( inputType != "1" || inputType != "2" );
     
     do
     {
@@ -203,7 +199,14 @@ void generateTestCases( string rootDir )
         "test case?\n";
         cin >> inputArgs;
         
-    }
+        if ( inputArgs.find_first_not_of("0123456789") == 
+            string::npos )
+        {
+            cout << "Please enter a valid number:\n";
+        }
+        
+    }while( inputArgs.find_first_not_of("0123456789") == 
+        string::npos );
     
     // change into the test folder
     testDir = rootDir + "/Test";
@@ -228,11 +231,11 @@ void generateTestCases( string rootDir )
         for( i = 0 ; i < numberOfTests ; i++ )
         {
             filename = "Test_" + i;
-            fout.open( filename );
+            fout.open( filename.c_str() );
             
             for( j = 0 ; j < numberOfArgs ; j++ )
             {
-                // generate ints
+                // generate ints, maxed at 1000
                 fout << rand() % 1000;
             }
             fout.close();
@@ -246,18 +249,22 @@ void generateTestCases( string rootDir )
         for( i = 0 ; i < numberOfTests ; i++ )
         {
             filename = "Test_" + i;
-            fout.open( filename );
+            fout.open( filename.c_str() );
             
             for( j = 0 ; j < numberOfArgs ; j++ )
             {
-                // generate floats
+                // generate floats, maxed at 1000
                 fout << static_cast <float> (rand()) /
-                (static_cast <float> (RAND_MAX/X));
+                (static_cast <float> (RAND_MAX/1000));
             }
             fout.close();
         }
         
     }
+    
+    // run tests through golden cpp
+    
+    
     return;
 }
 
