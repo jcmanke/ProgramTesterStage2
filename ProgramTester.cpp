@@ -41,11 +41,12 @@ struct data_struct
     int passed;
     int failed;
     int total;
-	bool crit_failed;
+    bool crit_failed;
 };
 
 
 ///////////function prototypes/////////////////////////////////////////////////
+void generateTestCases( string rootDir );
 void menuLoop( string rootDir );
 void find_tst ( string root, string curr_dir, string target, ofstream &fout,
                 data_struct* test_stats );
@@ -59,7 +60,7 @@ void FinalLogWrite( std::ofstream &fout, string name, int numPassed,
 
 void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
 
-bool compile( string progName);
+bool compile( string progName );
 void studentDirCrawl( string rootDir );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
@@ -142,6 +143,90 @@ string get_time ()
 
 
 /******************************************************************************
+ * @Function generateTestCases
+ * @author Erik Hattervig
+ * 
+ * @Description:
+ * Asks the user for the type of test data, the number of test cases to
+ * generate, and the number of arguments in each test case, it then generates
+ * the test cases in a GeneratedTests folder and then call for the test cases
+ * for run through the golden program.
+ *
+ * @parm[in] rootDir - the path to the root directory
+ *
+ *****************************************************************************/
+void generateTestCases( string rootDir )
+{
+    string inputType;
+    string inputNumber;
+    string inputArgs;
+    string testDir;
+    
+    do
+    {
+        // Print menu for generating test cases too allow for
+        // the options of integers or floats
+        cout << "\nType of test data?\n  1: Integer\n  2: Float\n";
+        cout << "Selection: ";
+        
+        cin >> inputType;
+        if( inputType != "1" || inputType != "2" )
+        {
+            cout << "Please enter a valid option" << endl;
+        }
+    
+    }while( input != "1" || input != "2" );
+    
+    do
+    {
+        // Print menu for number of test cases created
+        cout << "\nWhat number of test cases would you like to " <<
+            "generate?\n";
+        
+        cin >> inputNumber;
+        // Make sure the input is a number
+        if ( inputNumber.find_first_not_of("0123456789") == 
+            string::npos )
+        {
+            cout << "Please enter a valid number:\n";
+        }
+    }while( inputNumber.find_first_not_of("0123456789") == 
+        string::npos );
+    
+    do
+    {
+        // Print Menu for number of arguments in each test case
+        cout << "\nWhat number of arguments would you like in each " <<
+        "test case?\n";
+        cin >> inputArgs;
+        
+    }
+    
+    // change into the test folder
+    testDir = rootDir + "/Test";
+    chdir( testDir.c_str() );
+    
+    // delete the generated test in the test folder
+    system( "rm GeneratedTests" );
+    // recreate generated tests folder and change into it.
+    system( "mkdir GeneratedTests" );
+    testDir = testDir + "/GeneratedTests";
+    chdir( testDir.c_str() );
+    
+    if( inputType == "1" )
+    {
+        // generate test cases for integers
+        // <---
+    }
+    else if ( inputNumber == "2" )
+    {
+        // generate test cases for floats
+        // <---
+    }
+    return;
+}
+
+/******************************************************************************
  * @Function menuLoop
  * @author Erik Hatterivg
  *
@@ -172,26 +257,7 @@ void menuLoop( string rootDir )
         }
         else if( input == "2" )
         {
-            do
-            {
-                // Print menu for generating test cases too allow for
-                // the options of integers or floats
-                cout << "\nType of test data?\n  1: Integer\n  2: Float\n";
-                cout << "  3: Cancel\n";
-                cout << "Selection: ";
-                
-                cin >> input;
-                if( input == "1" )
-                {
-                    // call generate test cases for integers
-                    // <---
-                }
-                else if ( input == "2" )
-                {
-                    // call generate test cases for floats
-                    // <---
-                }
-            }while( input != "1" || input != "2" || input != "3" );
+            generateTestCases( rootDir );
         }
         else if( input == "3" )
         {
