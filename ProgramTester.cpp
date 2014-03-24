@@ -151,15 +151,17 @@ string get_time ()
  *****************************************************************************/
 void generateTestCases( string rootDir )
 {
-    string inputType;
-    string inputNumber;
-    string inputArgs;
-    string testDir;
-    string filename;
-    int numberOfTests;
-    int numberOfArgs;
+    string inputType;       // used to store the type of input
+    string inputNumber;     // used to store the number of cases to generate
+    string inputArgs;       // used to store the number of args in a test case
+    string testDir;         // the directory the test cases are in
+    string filename;        // used to store filenames when creating the files
+    string command;         // used to create strings for commands
+    int numberOfTests;      // integer value of number of test cases
+    int numberOfArgs;       // integer value of number of args per test case
     int i,j;
-    ofstream fout;
+    ofstream fout;          // out file stream when populating test cases
+    char buffer[10];        // used in int to string conversion
     
     do
     {
@@ -169,12 +171,13 @@ void generateTestCases( string rootDir )
         cout << "Selection: ";
         
         cin >> inputType;
-        if( inputType != "1" || inputType != "2" )
+        
+        if( inputType != "1" && inputType != "2" )
         {
             cout << "Please enter a valid option" << endl;
         }
     
-    }while( inputType != "1" || inputType != "2" );
+    }while( inputType != "1" && inputType != "2" );
     
     do
     {
@@ -184,12 +187,12 @@ void generateTestCases( string rootDir )
         
         cin >> inputNumber;
         // Make sure the input is a number
-        if ( inputNumber.find_first_not_of("0123456789") == 
+        if ( inputNumber.find_first_not_of("0123456789") != 
             string::npos )
         {
             cout << "Please enter a valid number:\n";
         }
-    }while( inputNumber.find_first_not_of("0123456789") == 
+    }while( inputNumber.find_first_not_of("0123456789") != 
         string::npos );
     
     do
@@ -199,21 +202,21 @@ void generateTestCases( string rootDir )
         "test case?\n";
         cin >> inputArgs;
         
-        if ( inputArgs.find_first_not_of("0123456789") == 
+        if ( inputArgs.find_first_not_of("0123456789") != 
             string::npos )
         {
             cout << "Please enter a valid number:\n";
         }
         
-    }while( inputArgs.find_first_not_of("0123456789") == 
+    }while( inputArgs.find_first_not_of("0123456789") != 
         string::npos );
     
     // change into the test folder
-    testDir = rootDir + "/Test";
+    testDir = rootDir + "/Tests";
     chdir( testDir.c_str() );
     
     // delete the generated test in the test folder
-    system( "rm GeneratedTests" );
+    system( "rm -rf GeneratedTests/" );
     // recreate generated tests folder and change into it.
     system( "mkdir GeneratedTests" );
     testDir = testDir + "/GeneratedTests";
@@ -230,7 +233,9 @@ void generateTestCases( string rootDir )
         
         for( i = 0 ; i < numberOfTests ; i++ )
         {
-            filename = "Test_" + i;
+            sprintf( buffer, "%d", i);
+            filename = "Test_" + (string)buffer;
+            filename += ".tst";
             fout.open( filename.c_str() );
             
             for( j = 0 ; j < numberOfArgs ; j++ )
@@ -248,7 +253,9 @@ void generateTestCases( string rootDir )
         
         for( i = 0 ; i < numberOfTests ; i++ )
         {
-            filename = "Test_" + i;
+            sprintf( buffer, "%d", i);
+            filename = "Test_" + (string)buffer;
+            filename += ".tst";
             fout.open( filename.c_str() );
             
             for( j = 0 ; j < numberOfArgs ; j++ )
@@ -263,8 +270,32 @@ void generateTestCases( string rootDir )
     }
     
     // run tests through golden cpp
+    // compile golden cpp
+    chdir( rootDir.c_str() );
+    compile( "" );
     
+    // change back to the test directory
+    chdir( testDir.c_str() );
     
+    // run cases though a.out
+    for( i = 0 ; i < numberOfTests ; i++ )
+    {
+        chdir( testDir.c_str() );
+        // create the .ans file
+        sprintf( buffer, "%d", i);
+        filename = "touch Test_" + (string)buffer;
+        filename += ".ans";
+        command = "touch " + filename;
+        system( command.c_str() );
+        
+        // run through the executable
+        chdir( rootDir.c_str() );
+        command = "./a.out < Tests/GeneratedTests/Test_" + (string)buffer;
+        command += ".tst > Tests/GeneratedTests/Test_" + (string)buffer;
+        command += ".ans";
+        system( command.c_str() );
+    }
+
     return;
 }
 
