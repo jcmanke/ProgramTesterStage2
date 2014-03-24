@@ -26,6 +26,7 @@
 /////////includes//////////////////////////////////////////////////////////////
 #include <iostream>
 #include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <dirent.h>
 #include <unistd.h>
@@ -158,6 +159,11 @@ void generateTestCases( string rootDir )
     string inputNumber;
     string inputArgs;
     string testDir;
+    string filename;
+    int numberOfTests;
+    int numberOfArgs;
+    int i,j;
+    ofstream fout;
     
     do
     {
@@ -210,15 +216,47 @@ void generateTestCases( string rootDir )
     testDir = testDir + "/GeneratedTests";
     chdir( testDir.c_str() );
     
+    // convert input to integers
+    numberOfTests = atoi( inputNumber.c_str() );
+    numberOfArgs = atoi( inputArgs.c_str() );
+    
+    
     if( inputType == "1" )
     {
         // generate test cases for integers
-        // <---
+        
+        for( i = 0 ; i < numberOfTests ; i++ )
+        {
+            filename = "Test_" + i;
+            fout.open( filename );
+            
+            for( j = 0 ; j < numberOfArgs ; j++ )
+            {
+                // generate ints
+                fout << rand() % 1000;
+            }
+            fout.close();
+        }
+        
     }
     else if ( inputNumber == "2" )
     {
         // generate test cases for floats
-        // <---
+        
+        for( i = 0 ; i < numberOfTests ; i++ )
+        {
+            filename = "Test_" + i;
+            fout.open( filename );
+            
+            for( j = 0 ; j < numberOfArgs ; j++ )
+            {
+                // generate floats
+                fout << static_cast <float> (rand()) /
+                (static_cast <float> (RAND_MAX/X));
+            }
+            fout.close();
+        }
+        
     }
     return;
 }
