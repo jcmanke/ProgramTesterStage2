@@ -4,6 +4,7 @@
  *
  *  Authors: Colter Assman, Samuel Carroll, Shaun Gruenig
  *  Adventure Line Authors: Erik Hattervig, Andrew Koc, Jonathan Tomes
+ *  Lounge Against the Machine Authors: Joe Manke, Adam Meaney
  * CS470 - Software Engineering
  * Dr. Logar
  * March 24, 2014
@@ -23,16 +24,23 @@
  *
 ******************************************************************************/
 
+int MAX_TIMEOUT = 60;
 
 /////////includes//////////////////////////////////////////////////////////////
 #include <iostream>
 #include <stdlib.h>
 #include <cstdlib>
+#include <cmath>
+#include <cstring>
 #include <string>
 #include <dirent.h>
 #include <unistd.h>
 #include <fstream>
 #include <ctime>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -50,17 +58,28 @@ struct data_struct
 ///////////function prototypes/////////////////////////////////////////////////
 bool compile( string progName );
 void FinalLogWrite( std::ofstream &fout, string name, int numPassed, 
-        int numTotal);
+    int numTotal);
 void generateTestCases( string rootDir );
+void generateInts(int numberOfTests, int numberOfArgs);
+void generateFloats(int numberOfTests, int numberOfArgs);
+void generateStrings(int numberOfTests, int numberOfArgs);
+void generateMenu(int numberOfTests, string rootDir, string testDir);
+bool stringEndsWith(string fullString, string ending);
+bool isAllDigits(string toCheck);
 string get_time ();
 void menuLoop( string rootDir );
-bool run_diff ( string file1, string file2 );
+int run_diff ( string file1, string file2 );
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log);
-void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus );
+void StudentLogWrite( std::ofstream &fout, string testName, int passedStatus );
+void run_gprof(string progName, ofstream &log);
 void studentDirCrawl( string rootDir );
 void testCrawl( string testPath, string exePath, ofstream &studentLog, 
   data_struct *rec, string studentPath );
+void askForTimeout();
+bool manualDiff(string file1, string file2);
+bool testResults(string ansWord, string outWord);
+void run_gcov(string progName, ofstream &log);
 
 /******************************************************************************
  *
@@ -127,7 +146,6 @@ bool compile( string progName )
     string cppFile;
     string command;
     
-    
     getcwd( cCurrentPath, sizeof(cCurrentPath) );
     //start looking for the cpp 
     dir = opendir( cCurrentPath );
@@ -140,7 +158,7 @@ bool compile( string progName )
         if( filename != "." && filename != ".." )
         {
             //check if the file is a cpp file.
-            if( filename.find(".cpp") != string::npos )
+            if( stringEndsWith(filename, ".cpp") == true )
             {
                 cppFile = filename;
                 foundFlag = true;
@@ -155,15 +173,20 @@ bool compile( string progName )
         return false;
     }
     
+    //build compile command
+    //coverage flags first
+    command = "g++ -fprofile-arcs -ftest-coverage ";
+    
     //check to see if a program name was specified.
     if( !progName.empty() )
     {
-        command = "g++ -o " + progName + " " + cppFile;
+        command += "-o " + progName + " ";
     }
-    else
-    {
-        command = "g++ " + cppFile;
-    }
+    
+    command += cppFile;
+    
+    //profiling flag
+    command += " -pg";
     
     //execute the command.
     system( command.c_str() );
@@ -216,6 +239,7 @@ void FinalLogWrite( std::ofstream &fout, string name, data_struct *rec )
 /******************************************************************************
  * @Function generateTestCases
  * @author Erik Hattervig
+ * @author Joe Manke
  * 
  * @Description:
  * Asks the user for the type of test data, the number of test cases to
@@ -223,7 +247,7 @@ void FinalLogWrite( std::ofstream &fout, string name, data_struct *rec )
  * the test cases in a GeneratedTests folder and then call for the test cases
  * for run through the golden program.
  *
- * @parm[in] rootDir - the path to the root directory
+ * @param[in] rootDir - the path to the root directory
  *
  *****************************************************************************/
 void generateTestCases( string rootDir )
@@ -244,49 +268,51 @@ void generateTestCases( string rootDir )
     {
         // Print menu for generating test cases too allow for
         // the options of integers or floats
-        cout << "\nType of test data?\n  1: Integer\n  2: Float\n";
+        cout << "\nType of test data?\n  1: Integer\n  2: Float\n  3: String\n  4: Menu\n";
         cout << "Selection: ";
         
         cin >> inputType;
         
-        if( inputType != "1" && inputType != "2" )
+		if( inputType != "1" && inputType != "2" && inputType != "3" && inputType != "4" )
         {
-            cout << "Please enter a valid option" << endl;
+            cout << "Please enter a valid option." << endl;
         }
     
-    }while( inputType != "1" && inputType != "2" );
+    }while( inputType != "1" && inputType != "2" && inputType != "3" && inputType != "4" );
+    
     
     do
     {
         // Print menu for number of test cases created
-        cout << "\nWhat number of test cases would you like to " <<
-            "generate?\n";
+        cout << "\nWhat number of test cases would you like to generate? ";
         
         cin >> inputNumber;
         // Make sure the input is a number
-        if ( inputNumber.find_first_not_of("0123456789") != 
-            string::npos )
+        if ( !isAllDigits(inputNumber) )
         {
-            cout << "Please enter a valid number:\n";
+            cout << "Please enter a valid number." << endl;
         }
-    }while( inputNumber.find_first_not_of("0123456789") != 
-        string::npos );
-    
-    do
-    {
-        // Print Menu for number of arguments in each test case
-        cout << "\nWhat number of arguments would you like in each " <<
-        "test case?\n";
-        cin >> inputArgs;
-        
-        if ( inputArgs.find_first_not_of("0123456789") != 
-            string::npos )
+    }while( !isAllDigits(inputNumber) );
+     
+    numberOfTests = atoi( inputNumber.c_str() ); 
+     
+    if(inputType != "4")
+    {    
+        do
         {
-            cout << "Please enter a valid number:\n";
-        }
+            // Print Menu for number of arguments in each test case
+            cout << "\nWhat number of arguments would you like in each test case? ";
+            cin >> inputArgs;
+            
+            if ( !isAllDigits(inputArgs) )
+            {
+                cout << "Please enter a valid number:\n";
+            }
+            
+        }while( !isAllDigits(inputArgs) );
         
-    }while( inputArgs.find_first_not_of("0123456789") != 
-        string::npos );
+        numberOfArgs = atoi( inputArgs.c_str() );
+    }
     
     // change into the test folder
     testDir = rootDir + "/test";
@@ -299,53 +325,21 @@ void generateTestCases( string rootDir )
     testDir = testDir + "/GeneratedTests";
     chdir( testDir.c_str() );
     
-    // convert input to integers
-    numberOfTests = atoi( inputNumber.c_str() );
-    numberOfArgs = atoi( inputArgs.c_str() );
-    
-    
     if( inputType == "1" )
     {
-        // generate test cases for integers
-        
-        for( i = 0 ; i < numberOfTests ; i++ )
-        {
-            sprintf( buffer, "%d", i);
-            filename = "Test_" + (string)buffer;
-            filename += ".tst";
-            fout.open( filename.c_str() );
-            
-            for( j = 0 ; j < numberOfArgs ; j++ )
-            {
-                // generate ints, maxed at 1000
-                fout << rand() % 1000;
-                fout << endl;
-            }
-            fout.close();
-        }
-        
+		generateInts(numberOfTests, numberOfArgs);
     }
     else if ( inputType == "2" )
     {
-        // generate test cases for floats
-        
-        for( i = 0 ; i < numberOfTests ; i++ )
-        {
-            sprintf( buffer, "%d", i);
-            filename = "Test_" + (string)buffer;
-            filename += ".tst";
-            fout.open( filename.c_str() );
-            
-            for( j = 0 ; j < numberOfArgs ; j++ )
-            {
-                // generate floats, maxed at 1000
-                fout << static_cast <float> (rand()) /
-                (static_cast <float> (RAND_MAX/1000));
-                fout << endl;
-            }
-            fout.close();
-        }
-        
+		generateFloats(numberOfTests, numberOfArgs);
+    }
+    else if ( inputType == "3" )
+    {
+        generateStrings(numberOfTests, numberOfArgs);
+    }
+    else if ( inputType == "4" )
+    {
+        generateMenu(numberOfTests, rootDir, testDir);
     }
     
     // run tests through golden cpp
@@ -362,8 +356,7 @@ void generateTestCases( string rootDir )
         chdir( testDir.c_str() );
         // create the .ans file
         sprintf( buffer, "%d", i);
-        filename = "touch Test_" + (string)buffer;
-        filename += ".ans";
+        filename = "Test_" + (string)buffer + ".ans";
         command = "touch " + filename;
         system( command.c_str() );
         
@@ -376,6 +369,323 @@ void generateTestCases( string rootDir )
     }
 
     return;
+}
+
+/******************************************************************************
+ * @Function generateInts
+ * @author Erik Hattervig
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Generates files filled with random integers with values from 0 to 1000.
+ *
+ * @param[in] numberOfTests - the number of test files to generate
+ * @param[in] numberOfArgs - the number of values per file
+ *
+ *****************************************************************************/
+void generateInts(int numberOfTests, int numberOfArgs)
+{
+	ofstream fout;
+	string fileName;
+	char * testNum;
+	int i, j;
+
+	for( i = 0 ; i < numberOfTests ; i++ )
+    {
+        sprintf( testNum, "%d", i);
+		fileName = "Test_" + (string)testNum + ".tst";
+        fout.open( fileName.c_str() );
+            
+        for( j = 0 ; j < numberOfArgs ; j++ )
+        {
+            // generate ints, maxed at 1000
+            fout << rand() % 1000;
+            fout << endl;
+        }
+        fout.close();
+    }
+
+}
+
+/******************************************************************************
+ * @Function generateFloats
+ * @author Erik Hattervig
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Generates files filled with random floating point numbers with values from 
+ * 0.0 to 1000.0.
+ *
+ * @param[in] numberOfTests - the number of test files to generate
+ * @param[in] numberOfArgs - the number of values per file
+ *
+ *****************************************************************************/
+void generateFloats(int numberOfTests, int numberOfArgs)
+{
+	ofstream fout;
+	string fileName;
+	char * testNum;
+	int i, j;
+
+	for( i = 0 ; i < numberOfTests ; i++ )
+    {
+		sprintf( testNum, "%d", i);
+		fileName = "Test_" + (string)testNum + ".tst";
+        fout.open( fileName.c_str() );
+            
+        for( j = 0 ; j < numberOfArgs ; j++ )
+        {
+            // generate floats, maxed at 1000
+            fout << static_cast <float> (rand()) /
+            (static_cast <float> (RAND_MAX/1000));
+            fout << endl;
+        }
+        fout.close();
+    }
+}
+
+/******************************************************************************
+ * @Function generateStrings
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Asks the user if they want exact or variable length strings, and the exact/
+ * maximum length of the strings. Then generates files filled with random
+ * strings of lowercase characters.
+ *
+ * @param[in] numberOfTests - the number of test files to generate
+ * @param[in] numberOfArgs - the number of values per file
+ *
+ *****************************************************************************/
+void generateStrings(int numberOfTests, int numberOfArgs)
+{
+	ofstream fout;
+	string fileName, stringType, stringLength;
+	char * testNum;
+	char letter;
+	int length, maxLength;
+	int i, j, k;
+	bool notANumber = false;
+
+	// determine exact or variable length
+	do
+    {
+		cout << "Would you like exact length or variable length strings?" << endl;
+        cout << "1. exact\n2. variable\n";
+        cout << "Selection: ";
+        cin >> stringType;
+
+		notANumber = !isAllDigits(stringType);
+		if (notANumber)
+        {
+            cout << "Please enter a valid number:\n";
+        }
+    }while(notANumber || (stringType != "1" && stringType != "2"));
+        
+	// determine length
+	do
+	{
+		cout << "How long do you want the strings? (max 80) ";
+		cin >> stringLength;
+
+		notANumber = !isAllDigits(stringLength);
+		if(notANumber)
+        {
+            cout << "Please enter a valid number:\n";
+        }
+	}while(notANumber);
+
+	// convert input to integer
+	maxLength = atoi(stringLength.c_str());
+	if(maxLength > 80)
+	{
+		maxLength = 80;
+	}
+
+	//generate strings
+	for(i = 0; i < numberOfTests; i++)
+	{
+	    //create file
+		sprintf( testNum, "%d", i);
+		fileName = "Test_" + (string)testNum + ".tst";
+        fout.open( fileName.c_str() );
+            
+        //create word
+        for( j = 0 ; j < numberOfArgs ; j++ )
+        {
+            //determine length
+		    if(stringType == "1") //exact length
+		    {
+			    length = maxLength;
+		    }
+		    else //variable length
+		    {
+			    length = rand() % maxLength + 1;
+		    }
+            
+            //generate letters
+            for(k = 0; k < length; k++)
+			{
+				// all lowercase letters
+                // a = 97, z = 122
+                letter = (char) (rand() % 26 + 97);
+                fout << letter; 
+			}
+
+            fout << endl;
+        }
+        fout.close();
+	}
+}
+
+/******************************************************************************
+ * @Function generateMenu
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Finds a .spec file and uses it to generate test cases for menu-driven 
+ * programs. Each line of the .spec file should be formatted as follows:
+ *  <menu option> {type = "int"|"double"}
+ *
+ * @param[in] numberOfTests - the number of test files to generate
+ * @param[in[ rootDir - the directory being tested, where the .spec file 
+ *                      is located
+ * @param[in] testDir - where to write the .tst file
+ *****************************************************************************/
+void generateMenu(int numberOfTests, string rootDir, string testDir)
+{
+    char cCurrentPath[FILENAME_MAX];
+    DIR * dir;
+    struct dirent* file;        //file entity struct from dirent.h
+    string fileName;
+    bool foundFlag = false;
+    string specFile, specLine, value;
+    ifstream fin;
+    ofstream fout;
+    char testNum[10];
+    int lastIndex, index;
+    
+    //start looking for the .spec file
+    chdir( rootDir.c_str() );
+    dir = opendir( rootDir.c_str() );
+    
+    while( ( file = readdir(dir) ) != NULL && !foundFlag )
+    {
+        //get file name
+        fileName = file -> d_name;
+        //skip over "." and ".."
+        if( fileName != "." && fileName != ".." )
+        {
+            //check if the file is a .spec file.
+            if( stringEndsWith(fileName, ".spec" ) )
+            {
+                specFile = rootDir + "/" + fileName;
+                foundFlag = true;
+            }
+        }
+    }
+    
+    //check to see if a .spec file was found at all.
+    if(!foundFlag)
+    {
+        cout << "Could not find a .spec file in: " << cCurrentPath << endl;
+        return;
+    }
+
+    //generate the tests
+    chdir( testDir.c_str() );
+    
+    for( int i = 0; i < numberOfTests; i++)
+    {
+        fin.open( specFile.c_str() );
+        
+		sprintf( testNum, "%d", i);
+		fileName = "Test_" + (string)testNum + ".tst";
+        fout.open( fileName.c_str() );
+        
+        while( getline(fin, specLine) )
+        {
+            lastIndex = 0;
+            
+            while( lastIndex < specLine.length() && lastIndex != string::npos )
+            {
+                index = specLine.find(" ", lastIndex);
+                
+                if(index == string::npos)
+                {
+                    break;
+                }
+                
+                value = specLine.substr(lastIndex, index - lastIndex);
+                
+                if( isAllDigits( value ) )
+                {
+                    fout << value;
+                }
+                else if ( value == "int" )
+                {
+                    fout << rand();
+                }
+                else if ( value == "double" )
+                {
+                    fout << (double) rand() / RAND_MAX;
+                }
+                
+                fout << " ";
+                
+                lastIndex = index + 1;
+            }
+            
+            fout << endl;
+        }
+        
+        fin.close();
+        fout.close();
+    }
+}
+
+/******************************************************************************
+ * @Function stringEndsWith
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Determines if one string ends with another string. To be used for finding
+ * .cpp, .C, and .spec files. Based on code found at
+ * http://stackoverflow.com/questions/874134/find-if-string-endswith-another-string-in-c
+ *
+ * @param[in] fullString - the string being checked
+ * @param[in] ending - the string to check with
+ *
+ * @return bool - true if fullString ends with ending, false if not 
+ *****************************************************************************/
+bool stringEndsWith(string fullString, string ending)
+{
+    int fullLength = fullString.length();
+    int endLength = ending.length();
+    
+    if(fullLength >= endLength)
+    {
+        //check the last endLength characters for ending
+        return ( fullString.compare( fullLength - endLength, endLength, ending ) == 0);
+    }
+    
+    return false;
+}
+
+/******************************************************************************
+ * @Function isAllDigits
+ * @author Joe Manke
+ * 
+ * @Description:
+ * Determines if every character in a string is a digit.
+ *
+ * @param[in] toCheck - the string to check the contents of
+ *
+ * @return bool - true if all letters are digits, false if not
+ *****************************************************************************/
+bool isAllDigits(string toCheck)
+{
+    return ( toCheck.find_first_not_of("0123456789") == string::npos );
 }
 
 /******************************************************************************
@@ -410,7 +720,7 @@ string get_time ()
  * @author Erik Hatterivg
  *
  * @Description:
- * This function promps the user for a option, its options will include running
+ * This function prompts the user for a option, its options will include running
  * the program as normally, generating test cases, or exiting.
  *
  * @param[in] rootDir - A string containing a path to the root directory
@@ -431,7 +741,9 @@ void menuLoop( string rootDir )
 
         if( input == "1" )
         {
+            askForTimeout();
             // run the program as normal
+            cout << "Running tests, please wait." << endl;
             studentDirCrawl(rootDir);
         }
         else if( input == "2" )
@@ -465,34 +777,38 @@ void menuLoop( string rootDir )
  *	string file2 - file to be compared with file1
  *
  *  @Author: Samuel Carroll
+ *  @Author: Adam Meaney
  *
 ******************************************************************************/
 
-bool run_diff ( string file1, string file2 )
+int run_diff ( string file1, string file2 )
 {
     string command; //string that will hold the command
     int result; // result of the diff system function
 
     command = "diff "; // start by writing the diff name and space
+    command += "-w -i "; //options to ignore whitespace differences and case.
     command += file1; // first file we want to check
     command += " "; // space between the files
     command += file2; // second file we want to check
-    command += " > /dev/null"; // stops the diff function from writing to the
-    // console
+    command += " > /dev/null"; // dump output from screen
+    
+    // run the command function and save the result
+    result = system( command.c_str() );
 
-    result = system ( command.c_str ( ) ); // run the command function and save
-    // the result
+    if ( result == 0 ) // if we get a zero there is no difference between the files
+        return 1; // return true so we know the test passed
 
-    if ( !result ) // if we get a zero there is no difference between the files
-        return true; // return true so we know the test passed
-
-    else // if we don't get a zero there was a diffence between the files
-        return false; // return false if the test failed
+    if (manualDiff(file1, file2) == true)
+        return 2;
+    
+    return 0;
 } // end of run_diff function
 
 /******************************************************************************
  * @Function: StudentLogWrite
  * @Author: Jonathan Tomes
+ * @Author: Adam Meaney
  *
  * @Description:
  *  Prints the status of a test to the file stream. Status should be weather
@@ -500,14 +816,19 @@ bool run_diff ( string file1, string file2 )
  *
  * @param[in] fout - the stream to write to.
  * @param[in] testName - name of the test.
- * @param[in] passedStatus - true - test passed.
- *                          false - test failed.
+ * @param[in] passedStatus - 2 - test had a presentation error
+                            1 - test passed normally.
+ *                          0 - test failed.
 ******************************************************************************/
 
-void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
+void StudentLogWrite( std::ofstream &fout, string testName, int passedStatus )
 {
     fout << testName << ": ";
-    if(passedStatus)
+    if(passedStatus == 2)
+    {
+        fout << "Passed with presentation errors" << std::endl;
+    }
+    else if(passedStatus == 1)
     {
         fout << "Passed" << std::endl;
     }
@@ -523,6 +844,7 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
  * @Function RunTestCase
  * @Author Andrew Koc (Note some code was taken from find_tst written by
  *                       Colter Assman and Shaun Gruenig)
+ * @Author Adam Meaney
  * 
  * @Description:
  * This function will take a given .tst file, generate the names for the 
@@ -545,8 +867,13 @@ void StudentLogWrite( std::ofstream &fout, string testName, bool passedStatus )
 bool RunTestCase(string exec, string test_case, string curr_dir, 
 	string student_dir, data_struct *rec, ofstream &log)
 {
-	bool passed;
+	int passed;
 	string outfilename, ansfilename, testname, command;
+	int pid = 0;
+	int wait_pid;
+	int status;
+	bool finished = false;
+	
 	
 	//increment number of tests found/ran
 	rec->total++;
@@ -558,8 +885,7 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
     outfilename = student_dir + '/' + testname + ".out";
 
     //creates name for .ans file, including the full path
-    ansfilename = curr_dir + "/" +
-                    testname + ".ans";
+    ansfilename = curr_dir + "/" + testname + ".ans";
 
     //creates command string to run the .tst file
     command = exec + " < " + curr_dir
@@ -567,15 +893,57 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
                 + " 2>/dev/null";
 
     //run command to test program with current .tst file
-    system ( command.c_str() );
+    pid = fork();
+    if (pid < 0)
+    {
+        cout << "An error occurred while attempting to run student in " << student_dir << endl;
+        exit(-2);
+    }
+    else if (pid == 0)
+    {
+        // Child
+        //system ( command.c_str() );
+        execl("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+        exit(5);
+    }
+    else
+    {
+        // in parent, check for child exit
+        int timer = 0;
+
+        while (true)
+        {
+            // sleep one second and see if process is done
+            sleep (1);
+            timer++;
+            wait_pid = waitpid(pid, &status, WNOHANG);
+
+            // if process is done, break out of loop
+            if (wait_pid != 0)
+            {
+                finished = true;
+                break;
+            }
+
+            // if time limit exceeded, kill child process
+            if (timer >= MAX_TIMEOUT)
+            {
+                rec -> crit_failed = true;
+                finished = false;
+                kill(pid, 9);
+            }
+        }
+    }
+    
+    system(string("pkill -f " + exec).c_str());
 
 	//determine if the program passed
-	passed = run_diff(outfilename, ansfilename);
+	passed = run_diff(ansfilename, outfilename);
 
 	StudentLogWrite(log, testname, passed);
 	
 	//The program passed the test
-	if( passed )
+	if( passed && finished == true )
 	{
 		rec->passed++;
 	}
@@ -588,7 +956,7 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
 		//If the .find function finds it it will return the
 		//starting position of the string, so if it doesn't
 		//equal the npos, or null position, if was found
-		if( test_case.find("_crit") != string::npos )
+		if( stringEndsWith( test_case, "_crit.tst" ) )
 		{
 			rec->crit_failed = true;
 		}
@@ -596,6 +964,87 @@ bool RunTestCase(string exec, string test_case, string curr_dir,
 
 	return passed;
 }
+
+void run_gprof(string progName, ofstream &log)
+{
+    string command, gprofFile;
+    string funcName, percent, temp;
+    ifstream fin;
+    int i;
+    
+    //run gprof
+    gprofFile = progName + ".gprof";
+    command = "gprof " + progName + " > " + gprofFile;
+    system( command.c_str() );
+    
+    
+    //parse out function names and percentages from .gprof file
+    fin.open( gprofFile.c_str() );
+    
+    //first 7 lines are header stuff
+    for(i = 0; i < 7; i++)
+    {
+        getline(fin, temp);
+    }
+    
+    log << "gprof results: " << endl;
+    
+    while( fin >> percent )
+    {
+        //don't want next 5 things
+        for(i = 0; i < 5; i++)
+        {
+            fin >> funcName;    
+        }
+        
+        log << funcName << " : " << percent << "%" << endl;
+    }
+    
+    fin.close();
+}
+
+/*******************************************************************************
+ * @Function run_gcov
+ * @Author Adam Meaney
+ * 
+ * @Description:
+ * This function will take a given log file and write the code coverage found
+ * by gcov for the student for whom that log exists.
+ *
+ * @param[in] progName - the name of the program that was run
+ * @param[in] log - the log file to write to
+ *
+*******************************************************************************/
+void run_gcov(string progName, ofstream &log)
+{
+    string command = "";
+    char buffer[40] = {'\0'};
+    ifstream fin;
+
+    command += "gcov " + progName + " | grep \"Lines executed\" > gcovOutfile.g ";
+
+    system( command.c_str() ); 
+
+    fin.open("gcovOutfile.g");
+
+    fin.getline(buffer, 40);
+
+    command = buffer;
+
+    if (command.length() == 0)
+        log << "Coverage unable to be checked." << endl;
+    else
+    {
+        command = command.substr(0, command.find("%", 0) + 1);
+        log << command << endl;
+    }
+        
+    fin.close();
+    
+    remove("gcovOutfile.g");
+   
+}
+
 
 /*******************************************************************************
  * @Function studentDirCrawl
@@ -682,12 +1131,18 @@ void studentDirCrawl( string rootDir )
                 rec.total = 0;
                 
                 //call test function to find and run tests
-                testCrawl( rootDir + '/' + "test", progName, studentLog,
-                  &rec, studentDir );
+                testCrawl( rootDir + '/' + "test", progName, studentLog, &rec, studentDir );
 
+                
                 //Final log write and write to class log
                 FinalLogWrite(studentLog, studentName, &rec);
                 FinalLogWrite(classLog, studentName, &rec);
+                
+                //determine code coverage and performance, append to log
+	            run_gprof(studentName, studentLog);
+                
+                run_gcov(studentName, studentLog);
+                
                 studentLog.close();
 
                 chdir( rootDir.c_str() );
@@ -745,22 +1200,158 @@ void testCrawl( string testPath, string exePath, ofstream &studentLog,
             if ( (int) file->d_type == 4 )
             {
                 // move into the sub-directory
-                testCrawl( testPath + '/' + filename, exePath,
-                studentLog, rec , studentPath );
+                testCrawl( testPath + '/' + filename, exePath, studentLog, rec , studentPath );
             }
-        else
-        {
-            // check if the file has a .tst in it. String find returns 
-            //   string::nops if the substring cannot be found
-            if ( filename.find( ".tst" ) != string::npos )
+            else
             {
-                // pass the file onto the grader
-                RunTestCase( exePath, filename, testPath, studentPath, rec,
-		        studentLog);
+                // check if the file has a .tst in it. String find returns 
+                //   string::npos if the substring cannot be found
+                if ( stringEndsWith(filename, ".tst" ) )
+                {
+                    // pass the file onto the grader
+                    RunTestCase( exePath, filename, testPath, studentPath, rec, studentLog );
+                }
             }
-      }
-    } 
-  }
-  
-  return;
+        } 
+    }
+}
+
+/******************************************************************************
+ * @Fuction askForTimeout
+ * @author Adam Meaney
+ * 
+ * Description:
+ * This function prompts to change the timeout on the tests. It takes in a y
+ * for yes and an n for no. If yes, then it prompts to enter the new timeout
+ * and changes the global timeout variable.
+ *
+ *****************************************************************************/
+void askForTimeout()
+{
+    char choice;
+    cout << "Do you want to change the timeout (Default: 60) y/n? ";
+    cin >> choice;
+    
+    if (choice == 'y' || choice == 'Y')
+    {
+        cout << "Timeout: ";
+        cin >> MAX_TIMEOUT;
+    }
+    
+}
+
+/******************************************************************************
+ * @Fuction manualDiff
+ * @author Adam Meaney
+ * 
+ * Description:
+ * This function checks for differences between 2 files, after a normal diff
+ * has been run. Returns true if pass, false if fails diff.
+ *
+ *****************************************************************************/
+bool manualDiff(string file1, string file2)
+{
+    string ansWord = "";
+    string outWord = "";
+    
+    ifstream ansFin;
+    ifstream outFin;
+    bool success = true;
+    
+    ansFin.open(file1.c_str());
+    outFin.open(file2.c_str());
+    
+    if ( !ansFin || !outFin )
+    {
+        cout << "Catastrophic error, file disappeared during testing." << endl;
+        ansFin.close();
+        outFin.close();
+        exit(-5);
+    }
+    
+    while(ansFin >> ansWord)
+    {
+        if (!(outFin >> outWord))
+        {
+            success = false;
+            break;
+        }
+        if (ansWord != outWord)
+        {
+            //run the tests, break if they fail.
+            if (testResults(ansWord, outWord) == false)
+            {
+                success = false;
+                break;
+            }
+        }
+    }
+    
+    //Check for additional words in outFin
+    
+    if ((outFin >> outWord) && success == true)
+    {
+            success = false;
+    }
+    
+    return success;
+}
+
+
+/******************************************************************************
+ * @Fuction testResults
+ * @author Adam Meaney
+ * 
+ * Description:
+ * This function takes 2 words and checks if they are the same word but in the
+ * incorrect order, 2 words that start and end the same, or a number that is 
+ * the same as the ansWord if rounded.
+ *
+ * param[in] ansWord - the word from the .ans file
+ * param[in] outWord - the word from the .out file
+ * returns success - if the words are ruled the same
+ *
+ *****************************************************************************/
+bool testResults(string ansWord, string outWord)
+{
+    int ansLength = ansWord.length();
+    int outLength = outWord.length();
+    int precision;
+    double ansDub;
+    double outDub;
+    
+    istringstream ansStream;
+    istringstream outStream;
+    
+    ansStream.str(ansWord);
+    outStream.str(outWord);
+    
+    precision = ansWord.find(".", 0);
+    
+    if (precision > 0)
+    {
+        precision = ansLength - (precision + 1);
+        if ( (ansStream >> ansDub) && (outStream >> outDub) )
+        {       
+            ansDub *= pow(10, precision);
+            outDub *= pow(10, precision);
+            
+            if (int(ansDub) == int(outDub + .50000005))
+                return true;
+            else
+                return false;
+            
+        }
+    }
+    
+    if (ansWord[0] == outWord[0] && ansWord[ansLength - 1] == outWord[outLength - 1])
+        return true;
+        
+    sort(ansWord.begin(), ansWord.end());
+    sort(outWord.begin(), outWord.end());
+    
+    if (ansWord == outWord)
+        return true;
+    
+    return false;
 }

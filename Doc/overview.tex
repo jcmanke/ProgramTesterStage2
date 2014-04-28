@@ -2,7 +2,7 @@
 
 \chapter{Overview and concept of operations}
 
-This document will look at the Software Engineering Adventure Line team second sprint for building
+This document will look at the Lounge Against the Machine team's third sprint for building
 a program tester. Looking at the team members and their roles, the project
 management that we used, the sprint retrospective, any terminology or acronyms
 that we use. Next we will look at the user stories, backlog and requirements of the
@@ -15,21 +15,18 @@ class index and class documnetation.
 
 
 \section{Scope}
-This document will cover the second sprint of our program tester built for Dr. Logar's
+This document will cover the third sprint of our program tester built for Dr. Logar's
 software engineering class in Spring 2014 .
 
 
 \section{Purpose}
-The purpose of this program is to compile, run and test the simple programs created by others. 
-
-The program willl also offer to generate additonal random tests.
+The purpose of this program is to compile, run and test the simple programs created by others. The program willl also offer to generate additonal random tests.
 
 \subsection{Normal Run}
-The programs it tests are supposed to be guarenteed to compile and run correctly. It will then search through a root directory, find each studen'ts
-subdirectory, compile their code into the root directory, open log files for the studen and the class as a whole. Student logs will
-go into the student's directory and the class log will be in the root. The student logs will have the results of each test and a final
-score. The final score will be based on the precent of the tests passed. Unless the program fails a critcal test. If a student fails a 
-test labeled as "crit\_(something).tst", that student will be immediately marked as "FAILED".
+The programs it tests are guaranteed to compile and run correctly. It will then search through a root directory, find each student's
+subdirectory, compile their code into the root directory, open log files for the student and the class as a whole. Student logs will
+go into the student's directory and the class log will be in the root. The student logs will have the results of each test, a final
+score, and results from running GNU tools gprof and gcov on the program. The final score will be based on the precent of the tests passed. A program may be marked as a fail if it fails a critical test, or times out. Critical tests are labeled as "crit\_(something).tst".
 
 \subsection{ Generate Tests}
 The program will ask for a number tests to generate, the number of inputs for
@@ -39,17 +36,13 @@ then remove the past generated tests and create new ones.
 
 
 \section{Systems Goals}
-1) Find student programs to compile.
-
-2) Find the tests and use them to test the found programs.
-
-3) Generate new random test cases.
+1) Find student programs to compile.\\
+2) Find the tests and use them to test the found programs.\\
+3) Generate new random test cases.\\
+4) Log information about the test runs, including pass percentage, code coverage, and code performance.
 
 \section{System Overview and Diagram}
-The program will be started on the command line. You may specify a starting directory or not, if not the program will assume that it is running in the
-directory it is supposed to be searching in. It will then display a simple menu of Run, which tells the program to run normaly,
-searching for student programs and testing them. Or Generate, which will tell the program to generate tests. It will ask
-the user for the number of test cases, number of inputs, and the data type to use.   See Figure~\ref{systemdiagram}.
+The program will be started on the command line. You may specify a testing directory. If a testing directory is not supplied, the program will assume its current directory is the testing directory. It will then display a simple menu for executing existing test cases, generated new test cases, or exiting.  See Figure~\ref{systemdiagram}.
 
 \begin{figure}[tbh]
 \begin{center}
@@ -59,4 +52,4 @@ the user for the number of test cases, number of inputs, and the data type to us
 \end{figure}
 
 \section{Technologies Overview}
-The main programing langue used was C++, and was compiled with g++ on a linux environment.
+The program was written in C++, and was compiled with g++ on a linux environment. The program also requires use of GNU tools gprof and gcov. Project management was done through Trello. Source control was done through GitHub. Documentation was created using \LaTeX.

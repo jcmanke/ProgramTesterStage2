@@ -25,7 +25,6 @@ This uses the C++ standard library, system calls, and the g++ compiler.
 This program recives a string which determines the name of the executable to be produced.  Then from the
 current directory finds and compiles the first .cpp file found.
 
-
 \section{Test Directory Crawl}
 
 \subsection{Technologies Used}
@@ -88,5 +87,18 @@ This function writes the percent of the tests passed, assuming that no critical 
 then only "FAILED" is written, rather than the percentage.  This function is used to write the last line of each student log file,
 as well as each line in the class log file.
 
+\section{Test Generation}
+\subsection {Technologies Used}
+This uses the C++ standard library, namely the fstream library and the function rand() from the cstdlib.
+
+\subsection {Component Overview}
+These function use an ofstream to write numbers generated using rand() to files named Test\_X.tst. Then the golden.cpp located in the parent directory is compiled and executing against these tests to make Test\_X.ans files. For menu generation, another file located in the parent directory with a .spec extension is also used.
+
+\section{Code Performance and Coverage}
+\subsection {Technologies Used}
+These uses the GNU tools gprof and gcov, and the fstream library.
+
+\subsection {Component Overview}
+After running test cases, the tested programs are run against the gprof and gcov tools to determine performance and coverage stats. Information from these tools is also written to the student log using an ofstream.
 
 

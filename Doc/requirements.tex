@@ -2,44 +2,24 @@
 \chapter{User Stories, Backlog and Requirements}
 \section{Overview}
 
-
 This section will look at the userstories of the development of the program, the requirements
-of the program, the proof o fconcept results, and research task results. It will also look at the
+of the program, the proof of concept results, and research task results. It will also look at the
 reason for developing this software. 
 
- The userstories 
-Compile source code from tester.   Run compiled code from tester.   Compare two files from tester to see
-if they are different.   Traverse a directory looking for test cases.   Write program output to a file.   Write
-to human readable log file.   
-
-Below:   list, describe, and define the requirements in this chapter.  
-There could be any number of sub-sections to help provide the necessary level of 
-detail. 
-
-
-
-
-
 \subsection{Scope}
-
 
 This document will contain stakeholder information, 
 initial user stories, requirements, proof of concept results, and various research 
 task results. 
 
-
-
 \subsection{Purpose of the System}
 To test a set of basic computer programs written in the C++ language so a grade can quickly be assigned to a class of students.
 The system will also be able to generate random test cases from user input.
 
-
 \section{ Stakeholder Information}
 
-
-The person most interested in this project is Dr. Logar (the end user) who is looking to quickly, 
-and easily, grade programs that are turned in by her CSC 150 students.
-
+The people most interested in this project is Dr. Logar and perhaps other computer science faculty, who are looking to quickly
+and easily, grade programs that are turned in by CSC 150 students.
 
 \subsection{Customer or End User (Product Owner)}
 The product owner on the first sprint was Samuel Carroll, he created a list with his teammates 
@@ -47,10 +27,11 @@ and on a day, selected by Dr. Logar, met with her and the other teams' product o
 exatly what Dr. Logar wanted. Samuel was also the team member most involved in keeping the Trello 
 board up to date.
 
-The product owner on the second sprint was Erik Hattervig, he gathered the nessary requirments of the
+The product owner on the second sprint was Erik Hattervig, he gathered the necessary requirments of the
 second sprint from Dr Logar, relaied the information to his teammates, and set up the product backlog on
 the Trello board.
 
+The product owner on the third sprint was Joe Manke. He gathered requirements from Dr. Logar, created the cards on Trello, and set up the GitHub repository for the sprint.
 
 \subsection{Management or Instructor (Scrum Master)}
 The scrum master for the first sprint was Colter Assman, his duties were to ensure that the project 
@@ -61,9 +42,10 @@ The scrum master for the second sprint was Jonathon Tomes,  he was in charge of 
 for the team members, creating spring schedules, and moving tasks from the product backlog to the sprint backlog.
 He also lead the scrum meetings.
 
-\subsection{Investors}
-There were no investors for our first sprint.
+The scrum master for the thrid sprint was Adam Meaney. He assigned tasks and managed the Trello board.
 
+\subsection{Investors}
+Our sole investor is Brian Butterfield, who will be reviewing all teams' products and awarding one team the Butterfield Cup for Excellence in Software Engineering, also colloquially known as the Buttercup.
 
 \subsection{Developers --Testers}
 Shaun Gruenig was the biggest tester for our program.   As the team technical lead 
@@ -73,31 +55,22 @@ often debug the issues our code had.
 For the second sprint, all three members of the team tested each other's code and gave feed back on bugs and
 code quality via Github.
 
+For the third sprint, both members of the team shared development and testing responsibilities, though Adam Meaney did more of the testing.
 
 \section{Business Need}
 Currently many computer science teachers have to write each test case out by hand.   
 This is a very time consuming endeavor (especially considering how many students each
 one has), so this program would enable them to write a test cases which will then be input
-to our program.   Quickly and accurately giving grades to students.
+to our program. This program's purpose is to help teachers quickly and accurately assign grades to students.
 
 \section{Requirements and Design Constraints}
-The requirements was that our tester run in the Linux environment.   We also needed this 
-program to be ready to send out by the time the first CSC 150 program was due, therefore
-we only had about two weeks to write and implement this code.
-
-For sprint two we were limited to a set of features that were given to us by Dr. Logar.
+The requirements are that the program be written in C++ and work in a Linux environment. Dr. Logar also required the use of Trello and GitHub for product management, and for documentation to be written with \LaTeX.
 
 
 \subsection{System  Requirements}
 The program must be able to run on a Linux machine, using the GNU operating system.   
 therefore the code must able to compile using the GNU compiler.   This means all of our
-code must be executable on Linux machines.   Of course we may have had to write this
-program for another system, but the Linux environment is the nicest one for us to use.
-
-
-\subsection{Network Requirements}
-No network requirements were needed.
-
+code must be executable on Linux machines.
 
 \subsection{Development Environment Requirements}
 Linux/GNU system should be able to run our tester. 
@@ -114,40 +87,123 @@ on the source control.
 \item All parties will have access to the Sprint and Product Backlogs
 \item Three sprints will encompass this project
 \item The sprints will vary in length a little bit but be about 2-3 weeks in general
-\item Github was used for source control on the second sprint
+\item Github was used for source control
 \end{itemize}
 
 \section{User Stories}
-This section contains information about the user stories (what the program must be able 
-to do, and what the user should have to do).
 
+\subsection{Sprint 1}
 
+\subsubsection{Compile and Run Source Code}
+The program must be able to compile and run source code found in the directory.
 
-\subsection{Compile and Run Source Code}
-The program must be able to compile and run source code found in the directory
-
-For sprint two we now must be able to compile and run test on an entire class directory.
-
-\subsection{Write Pass/Fail and Percentages to Log File} 
+\subsubsection{Write Pass/Fail and Percentages to Log File} 
 This program must be able to write output to a log file and to keep track of the total number
 passed cases and the total number of failed cases.
 
-For sprint two we need to be able to keep track of both individual records as well as the whole class.
-
-\subsection{Compare Output with expected output}
+\subsubsection{Compare Output with Expected Output}
 The program must be able to compare the output that we get after running a test case to the
 output that we expect to get from the test case. The expected output will be found when 
 searching the directory.
 
-\subsection{Searching/Traversing the Directory}
+\subsubsection{Searching/Traversing the Directory}
 The program must be able to search through all the files and sub-directories of the directory 
 that we are currently in.
 
-For sprint two this is used in the test directory.
+\subsubsection{Invoking the Program}
+The user must be able to run our program by typing "./test directoryName" from the terminal.
 
-\subsection{Invoking the Program}
-The user must be able to run our program by typing `test <directory>'.
+\subsection{Sprint 2}
 
+\subsubsection{Class Testing}
+The user should be able to run tests against an entire class's programs at once.
+
+\subsubsection{Test Case Generation}
+The user should be able to generate test cases with randomly generated integers or floating-point numbers.
+
+\subsubsection {Acceptance Testing}
+The user should be able to designate test cases as critical, and mark a program as a failure if it does not pass these tests.
+
+\subsection{Sprint 3}
+
+\subsubsection{Infinite Loop Detection}
+The program should be able to detect an infinite loop and halt program execution.
+
+\subsubsection{Presentation Errors}
+The program should be more lax in output comparison, and allow a pass with presentation errors.
+
+\subsubsection{Expanded Test Generation}
+The user should be able to generate test cases for strings and menu-driven programs.
+
+\subsubsection{Performance Testing}
+The program should log performance statistics for tested programs using the GNU tool gprof.
+
+\subsubsection{Code Coverage}
+The program should log code coverage statistics for tested programs using the GNU tool gcov.
+
+\section{User Story Breakdowns}
+\subsection{Sprint 1}
+
+\subsubsection{Compile and Run Source Code}
+The program compiles tested programs using the GNU g++ compiler. Compilation and execution are achieved using system commands.
+
+\subsubsection{Write Pass/Fail and Percentages to Log File} 
+Each test case is given a pass/fail grade per program, based on output comparison. The final grade for a program is the percentage of test cases passed. In Sprint 2, critical failures were introduced. In Sprint 3, passes with presentation errors were introduced.
+
+\subsubsection{Compare Output with Expected Output}
+For each test case, output is redirected to a .out file. This file is compared to a .ans using the diff command. For Sprints 1 and 2, the .out file must be identical to the .ans file for a program to pass a test case. In Sprint 3, looser requirements were introduced allowing a pass with presentation errors.
+
+\subsubsection{Searching/Traversing the Directory}
+The program performs recursive directory crawls starting in the given directory to find test cases, notated by a .tst extension, and test source code with .cpp extensions. In Sprint 2, this was modified so all test cases should be in a directory named "test", but may be located in child directories of that. Also as of Sprint 2, test source code for each student should be in a directory with the same name as the .cpp file (i.e. directory "student1" contains "student1.cpp").
+
+\subsubsection{Invoking the Program}
+The user must be able to run our program by typing "./test directoryName" from the terminal. This executable name is guaranteed by compiling the program using the provided makefile.
+
+\subsection{Sprint 2}
+
+\subsubsection{Class Testing}
+The executable should be located in a class directory. This directory should contain a directory named "test" where all test cases are located, and individual directories for each student. When tests are executed, a class log file sharing the name of the directory is written in the top level directory, and each student has an individual log file placed in their directory. The class log contains the final grade for each student.
+
+\subsubsection{Test Case Generation}
+When the program is started, the user is presented with a menu to either run existing test cases or generate new test cases. When generation is selected, the user is prompted for what type of data to generate. In Sprint 2, this was limited to integers and floats. Then, the user is asked how many cases to generate, and how many values to put in each test case. With this information, the program randomly generates values between 0 and 1000 and writes them to files named Test\_X.ans, located in the directory "test/GeneratedTests". This directory will be created anew every time test cases are generated. 
+
+After the test cases have been written, .ans files are created using a .cpp file located in the starting directory. This program is compiled and tested against each generated test case, with the .ans files also stored in "test/GeneratedTests". The user is then returned to the starting menu, allowing them to run their newly made test cases.
+
+In Sprint 3, this was expanded to include strings and menus.
+
+\subsubsection {Acceptance Testing}
+Tests with filenames of "x\_crit.tst" are considered critical or acceptance tests. If a program does not pass all critical test cases, it is considered a failure regardless of the percentage of non-critical tests it passes. Critical tests are not included in the final grade percentage.  
+
+\subsection{Sprint 3}
+
+\subsubsection{Infinite Loop Detection}
+This is not an attempt to solve the halting problem. Tested programs are now run in a forked child process, and killed if they do not complete within a given time. The user is asked if they want to adjust the timeout limit from its default of 60 seconds when they choose to run tests. If the program does not finish on its own before the timeout, it is considered a critical fail.
+
+\subsubsection{Presentation Errors}
+Tested programs are now allowed to pass without their .out file being exactly identical to the .ans file for the test case. There are five allowed presentation errors:
+\begin{itemize}
+\item Whitespace differences
+\item Case sensitivity
+\item Correct first and last letters, incorrect internals (e.g., "Definitely" vs "Definently") 
+\item Letters in incorrect order (e.g., "Option" vs "Optoin")
+\item Floating point values: If the .out file has more precision than the .ans file, but rounds up to the number in the .ans file, it is correct. If the .out file is less precise than the .ans file, it is incorrect.
+\end{itemize}
+
+Test cases which differ only on presentation are notated as "Passed with presentation errors" in the log file.
+
+\subsubsection{Expanded Test Generation}
+The program can now generate test cases using strings or designed for menu-driven programs.
+
+For strings, selecting the number of cases and values to generate is the same as for integers and floating-point values. In addition, the user selects if the strings should all be the same length or variable. The user then specifies a (maximum) length for the strings, capped at 80. All strings consistent only of lowercase letters encoded in ASCII.
+
+For menus, the user only specifies how many test cases to create. The number of values per test case is determined a .spec file, located in the root directory. The format of each line of the .spec file is the menu option (an integer) then either "int" or "double" for every value to be generated. These values will not be bounded. \\
+Example: The line "1 int int double" in a .spec file couldl generate the line "1 4095 728294 8374.837" in a .tst file.
+
+\subsubsection{Performance Testing}
+The test programs are compiled with the -pg flag so that they may be profiled using gprof. After the program is tested, the command "gprof studentName > studentName.gprof" is executed, writing the full flat profile to a file named studentName.gprof in the student's directory. The name of each function and its percentage of runtime are also written into the student's log file.
+
+\subsubsection{Code Coverage}
+The test programs are compiled with the flags "-fprofile-arcs -ftest-coverage." After the program is tested, the command "gcov studentName" is executed, creating a file named "studentName.gcov" in the student's directory. The code coverage is also reported in the student's log file.
 
 \section{Research or Proof of Concept Results}
 Most of the code had been written by our team before.   We knew how to run the system 
@@ -155,11 +211,12 @@ function in C++ to invoke a system command. We had built a directory crawler in 
 class (though in Windows so some modification had to take place).   All in all starting the 
 program we knew we could complete it.
 
-For sprint two much of the same concepts applied for the new features that were added such as
+For Sprint 2 much of the same concepts applied for the new features that were added such as
 test case generation.
 
-\section{Supporting Material}
+For Sprint 3, gprof and gcov had to be researched, but the rest of the new features were rather simple.
 
+\section{Supporting Material}
 
 In the man pages for the diff function it shows us that it returns one of three values and 
 the case those values are returned, a zero if there is no difference between the two files, 

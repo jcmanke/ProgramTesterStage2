@@ -20,3 +20,14 @@ to generate then run tests. It will log the results of the testing each student 
 directory, and to a class log located in the root directory.
 
 \section{Sprint Report \#3}
+
+This section required a long time before we were even able to make it run. We used the test directory supplied on
+the website, and the program would register a segmentation fault. It turns out that the previous group had
+decided that all tests that were to be run would only be in a directory called tests, that the student directories
+would only have one .cpp file and no files that contained cpp, such as a cpp.log. This also applied to the golden.cpp
+that was expected to be the only cpp in the root testing directory.
+
+After fighting through these issues, we managed to apply the new functionalities in short order. We implemented a
+customized diff function for the new cases, added string generation to the menu, and implemented performance
+testing and code coverage statistics through Gcov and Gprof. We also added a way to test if something was looping
+for too long, with an option to change the default timeout after selecting to run tests. 
